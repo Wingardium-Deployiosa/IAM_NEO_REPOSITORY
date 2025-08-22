@@ -1,0 +1,20 @@
+.status-badge {
+    padding: 5px 10px;
+    border-radius: 12px;
+    color: white;
+    font-weight: bold;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+.status-pending {
+    background-color: #ffc107; /* Yellow */
+}
+
+.status-confirmed {
+    background-color: #28a745; /* Green */
+}
+
+.status-rejected {
+    background-color: #dc3545; /* Red */
+}
