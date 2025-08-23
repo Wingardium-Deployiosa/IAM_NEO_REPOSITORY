@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { getRestaurantById } from '../utils/RestaurantService';
 import ReservationForm from './ReservationForm';
-import './RestaurantDetail.css';
+
 
 const RestaurantDetail = () => {
     const [restaurant, setRestaurant] = useState(null);

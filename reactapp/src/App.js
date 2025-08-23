@@ -1,15 +1,15 @@
 import React, {useState, createContext, useContext} from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import jwt_decode from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 
 // Import all your existing components
 import RestaurantList from './components/RestaurantList';
-import RestaurantDetail from './components/RestaurantDetail';
+import RestaurantDetails from './components/RestaurantDetails';
 import ReservationList from './components/ReservationList';
 
 import './App.css';
-import './components/Login.css';
+
 
 // --- Authentication Context & Hook (self-contained in this file) ---
 const AuthContext = createContext();
@@ -65,7 +65,7 @@ function App() {
 
     const login = (token) => {
         localStorage.setItem('token', token);
-        const decodedToken = jwt_decode(token);
+        const decodedToken = jwtDecode(token);
         setUser({ email: decodedToken.sub, role: decodedToken.role });
     };
 
@@ -96,7 +96,7 @@ function App() {
                     <main>
                         <Routes>
                             <Route path="/" element={<RestaurantList />} />
-                            <Route path="/restaurants/:id" element={<RestaurantDetail />} />
+                            <Route path="/restaurants/:id" element={<RestaurantDetails />} />
                             <Route path="/reservations" element={<ReservationList />} />
                             <Route path="/login" element={<Login />} />
                         </Routes>
