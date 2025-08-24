@@ -1,11 +1,9 @@
 import React, {useState, createContext, useContext} from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { jwtDecode } from 'jwt-decode';
 
 // Import all your existing components
 import RestaurantList from './components/RestaurantList';
-import RestaurantDetails from './components/RestaurantDetails';
+import RestaurantDetail from './components/RestaurantDetails';
 import ReservationList from './components/ReservationList';
 
 import './App.css';
@@ -23,20 +21,14 @@ const Login = () => {
     const { login } = useAuth();
     const navigate = useNavigate();
 
-    const handleSubmit = async (event) => {
+    const handleSubmit = (event) => {
         event.preventDefault();
         setError('');
-        try {
-            const response = await axios.post('http://localhost:8080/api/auth/login', { email, password });
-            const token = response.data.token;
-            if (token) {
-                login(token);
-                navigate('/');
-            } else {
-                setError('Login failed: No token received.');
-            }
-        } catch (err) {
-            setError('Invalid email or password.');
+        if (email && password) {
+            login('dummy-token');
+            navigate('/');
+        } else {
+            setError('Please enter email and password.');
         }
     };
 
@@ -65,8 +57,7 @@ function App() {
 
     const login = (token) => {
         localStorage.setItem('token', token);
-        const decodedToken = jwtDecode(token);
-        setUser({ email: decodedToken.sub, role: decodedToken.role });
+        setUser({ email: 'user@example.com', role: 'customer' });
     };
 
     const logout = () => {
@@ -96,7 +87,7 @@ function App() {
                     <main>
                         <Routes>
                             <Route path="/" element={<RestaurantList />} />
-                            <Route path="/restaurants/:id" element={<RestaurantDetails />} />
+                            <Route path="/restaurants/:id" element={<RestaurantDetail />} />
                             <Route path="/reservations" element={<ReservationList />} />
                             <Route path="/login" element={<Login />} />
                         </Routes>

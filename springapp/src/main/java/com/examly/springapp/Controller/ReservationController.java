@@ -1,4 +1,4 @@
-package com.examly.springapp.Controller;
+package com.examly.springapp.controller;
 
 import com.examly.springapp.model.Reservation;
 import com.examly.springapp.model.ReservationStatus;
