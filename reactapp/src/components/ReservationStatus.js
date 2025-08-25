@@ -1,15 +1,25 @@
 import React from 'react';
 import './ReservationStatus.css';
 
-const ReservationStatus = ({ status }) => {
-    const getStatusClass = () => {
-        switch (status) {
-            case 'CONFIRMED': return 'status-confirmed';
-            case 'REJECTED': return 'status-rejected';
-            case 'PENDING': default: return 'status-pending';
-        }
-    };
-    return (<span className={`status-badge ${getStatusClass()}`}>{status}</span>);
+const ReservationStatus = ({ reservationId, status, onStatusUpdate }) => {
+    return (
+        <div className="status-container">
+            <span>Status: {status}</span>
+            {status === 'PENDING' && (
+                <>
+                    <button 
+                        data-testid={`confirm-button-${reservationId}`} 
+                        onClick={() => onStatusUpdate(reservationId, 'CONFIRMED')}
+                    >
+                        Confirm
+                    </button>
+                </>
+            )}
+            {status === 'CONFIRMED' && (
+                 <button data-testid={`confirm-button-${reservationId}`} disabled>Confirmed</button>
+            )}
+        </div>
+    );
 };
 
 export default ReservationStatus;

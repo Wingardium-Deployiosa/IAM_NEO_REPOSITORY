@@ -1,16 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
+import './RestaurantSearch.css';
 
-const RestaurantSearch = ({ searchTerm, onSearchChange, onSearchSubmit }) => {
+const RestaurantSearch = ({ onSearch }) => {
+    const [cuisine, setCuisine] = useState('');
+
+    const handleSearch = () => {
+        onSearch(cuisine);
+    };
+
     return (
         <div className="search-container">
             <input
+                data-testid="search-input"
                 type="text"
+                value={cuisine}
+                onChange={(e) => setCuisine(e.target.value)}
                 placeholder="Search by cuisine..."
-                value={searchTerm}
-                onChange={onSearchChange}
                 className="search-input"
             />
-            <button onClick={onSearchSubmit} className="search-button">
+            <button data-testid="search-button" onClick={handleSearch} className="search-button">
                 Search
             </button>
         </div>

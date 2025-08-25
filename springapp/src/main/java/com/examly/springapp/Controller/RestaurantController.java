@@ -6,12 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/restaurants")
-@CrossOrigin(origins = "http://localhost:8081") // Allows requests from your React app
+@CrossOrigin(origins = "*")
 public class RestaurantController {
 
     @Autowired
@@ -19,32 +18,27 @@ public class RestaurantController {
 
     @PostMapping
     public ResponseEntity<Restaurant> createRestaurant(@RequestBody Restaurant restaurant) {
-        Restaurant createdRestaurant = restaurantService.createRestaurant(restaurant);
-        return new ResponseEntity<>(createdRestaurant, HttpStatus.CREATED);
+        return new ResponseEntity<>(restaurantService.createRestaurant(restaurant), HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Restaurant> getRestaurantById(@PathVariable Long id) {
-        Restaurant restaurant = restaurantService.getRestaurantById(id);
-        return restaurant != null ? new ResponseEntity<>(restaurant, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(restaurantService.getRestaurantById(id), HttpStatus.OK);
     }
 
     @GetMapping
     public ResponseEntity<List<Restaurant>> getAllRestaurants() {
-        List<Restaurant> restaurants = restaurantService.getAllRestaurants();
-        return new ResponseEntity<>(restaurants, HttpStatus.OK);
+        return new ResponseEntity<>(restaurantService.getAllRestaurants(), HttpStatus.OK);
     }
     
     @GetMapping("/cuisine/{cuisine}")
     public ResponseEntity<List<Restaurant>> searchByCuisine(@PathVariable String cuisine) {
-        List<Restaurant> restaurants = restaurantService.searchByCuisine(cuisine);
-        return new ResponseEntity<>(restaurants, HttpStatus.OK);
+        return new ResponseEntity<>(restaurantService.searchByCuisine(cuisine), HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Restaurant> updateRestaurant(@PathVariable Long id, @RequestBody Restaurant restaurantDetails) {
-        Restaurant updatedRestaurant = restaurantService.updateRestaurant(id, restaurantDetails);
-        return updatedRestaurant != null ? new ResponseEntity<>(updatedRestaurant, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(restaurantService.updateRestaurant(id, restaurantDetails), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
