@@ -1,15 +1,14 @@
 import React, {useState, createContext, useContext} from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import jwt_decode from 'jwt-decode';
+import {jwt_decode} from 'jwt-decode';
 
-// Import all your existing components
 import RestaurantList from './components/RestaurantList';
-import RestaurantDetail from './components/RestaurantDetail';
+import RestaurantDetail from './components/RestaurantDetails';
 import ReservationList from './components/ReservationList';
 
 import './App.css';
-import './components/Login.css';
+
 
 // --- Authentication Context & Hook (self-contained in this file) ---
 const AuthContext = createContext();
@@ -59,7 +58,7 @@ const Login = () => {
     );
 };
 
-// --- Main App Component ---
+
 function App() {
     const [user, setUser] = useState(null);
 

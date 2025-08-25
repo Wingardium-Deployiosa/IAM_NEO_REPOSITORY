@@ -1,55 +1,75 @@
-package com.examly.springapp.controller;
+package com.examly.springapp.Controller;
 
-import com.examly.springapp.model.Restaurant;
-import com.examly.springapp.service.RestaurantService;
+import com.examly.springapp.Model.Restaurant;
+import com.examly.springapp.Repository.RestaurantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/restaurants")
-@CrossOrigin(origins = "http://localhost:8081") // Allows requests from your React app
+@CrossOrigin(origins = "*")
 public class RestaurantController {
 
-    @Autowired
-    private RestaurantService restaurantService;
+@Autowired
+private RestaurantRepository restaurantRepository;
 
-    @PostMapping
-    public ResponseEntity<Restaurant> createRestaurant(@RequestBody Restaurant restaurant) {
-        Restaurant createdRestaurant = restaurantService.createRestaurant(restaurant);
-        return new ResponseEntity<>(createdRestaurant, HttpStatus.CREATED);
-    }
+@PostMapping
+public ResponseEntity<Restaurant> createRestaurant(@RequestBody Restaurant restaurant) {
+Restaurant savedRestaurant = restaurantRepository.save(restaurant);
+return new ResponseEntity<>(savedRestaurant, HttpStatus.CREATED);
+}
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Restaurant> getRestaurantById(@PathVariable Long id) {
-        Restaurant restaurant = restaurantService.getRestaurantById(id);
-        return restaurant != null ? new ResponseEntity<>(restaurant, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    }
+@GetMapping("/{id}")
+public ResponseEntity<Restaurant> getRestaurantById(@PathVariable Long id) {
+Optional<Restaurant> restaurant = restaurantRepository.findById(id);
+if (restaurant.isPresent()) {
+return new ResponseEntity<>(restaurant.get(), HttpStatus.OK);
+} else {
+return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+}
+}
 
-    @GetMapping
-    public ResponseEntity<List<Restaurant>> getAllRestaurants() {
-        List<Restaurant> restaurants = restaurantService.getAllRestaurants();
-        return new ResponseEntity<>(restaurants, HttpStatus.OK);
-    }
-    
-    @GetMapping("/cuisine/{cuisine}")
-    public ResponseEntity<List<Restaurant>> searchByCuisine(@PathVariable String cuisine) {
-        List<Restaurant> restaurants = restaurantService.searchByCuisine(cuisine);
-        return new ResponseEntity<>(restaurants, HttpStatus.OK);
-    }
+@GetMapping
+public ResponseEntity<List<Restaurant>> getAllRestaurants() {
+List<Restaurant> restaurants = restaurantRepository.findAll();
+return new ResponseEntity<>(restaurants, HttpStatus.OK);
+}
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Restaurant> updateRestaurant(@PathVariable Long id, @RequestBody Restaurant restaurantDetails) {
-        Restaurant updatedRestaurant = restaurantService.updateRestaurant(id, restaurantDetails);
-        return updatedRestaurant != null ? new ResponseEntity<>(updatedRestaurant, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    }
+@GetMapping("/cuisine/{cuisine}")
+public ResponseEntity<List<Restaurant>> searchByCuisine(@PathVariable String cuisine) {
+List<Restaurant> restaurants = restaurantRepository.findByCuisineIgnoreCase(cuisine);
+return new ResponseEntity<>(restaurants, HttpStatus.OK);
+}
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteRestaurant(@PathVariable Long id) {
-        restaurantService.deleteRestaurant(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
+@PutMapping("/{id}")
+public ResponseEntity<Restaurant> updateRestaurant(@PathVariable Long id, @RequestBody Restaurant restaurantDetails) {
+Optional<Restaurant> optionalRestaurant = restaurantRepository.findById(id);
+if (optionalRestaurant.isPresent()) {
+Restaurant existingRestaurant = optionalRestaurant.get();
+existingRestaurant.setName(restaurantDetails.getName());
+existingRestaurant.setAddress(restaurantDetails.getAddress());
+existingRestaurant.setCuisine(restaurantDetails.getCuisine());
+existingRestaurant.setOpeningTime(restaurantDetails.getOpeningTime());
+existingRestaurant.setClosingTime(restaurantDetails.getClosingTime());
+existingRestaurant.setTotalTables(restaurantDetails.getTotalTables());
+Restaurant updatedRestaurant = restaurantRepository.save(existingRestaurant);
+return new ResponseEntity<>(updatedRestaurant, HttpStatus.OK);
+} else {
+return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+}
+}
+
+@DeleteMapping("/{id}")
+public ResponseEntity<Void> deleteRestaurant(@PathVariable Long id) {
+if (restaurantRepository.existsById(id)) {
+restaurantRepository.deleteById(id);
+return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+} else {
+return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+}
+}
 }

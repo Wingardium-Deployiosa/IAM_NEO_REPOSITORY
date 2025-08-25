@@ -1,71 +1,55 @@
-package com.examly.springapp.service;
+package com.examly.springapp.Service;
 
-import com.examly.springapp.model.Reservation;
-import com.examly.springapp.model.ReservationStatus;
-import com.examly.springapp.model.Restaurant;
-import com.examly.springapp.repository.ReservationRepository;
-import com.examly.springapp.repository.RestaurantRepository;
+import com.examly.springapp.Exception.ResourceNotFoundException;
+import com.examly.springapp.Model.Reservation;
+import com.examly.springapp.Model.ReservationStatus;
+import com.examly.springapp.Model.Restaurant;
+import com.examly.springapp.Repository.ReservationRepository;
+import com.examly.springapp.Repository.RestaurantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ReservationService {
-
+    
     @Autowired
     private ReservationRepository reservationRepository;
-
+    
     @Autowired
     private RestaurantRepository restaurantRepository;
 
-    public Reservation createReservation(Reservation reservation) {
-        // --- Business Logic: Check if reservation time is valid ---
-        Restaurant restaurant = restaurantRepository.findById(reservation.getRestaurantId()).orElse(null);
-        if (restaurant == null) {
-            // In a real app, you'd throw a custom exception here
-            return null;
-        }
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
-        LocalTime openingTime = LocalTime.parse(restaurant.getOpeningTime(), formatter);
-        LocalTime closingTime = LocalTime.parse(restaurant.getClosingTime(), formatter);
-        LocalTime reservationTime = LocalTime.parse(reservation.getReservationTime(), formatter);
-
-        if (reservationTime.isBefore(openingTime) || reservationTime.isAfter(closingTime)) {
-            // This is where you would throw your ValidationException
-            // For now, we can return null to indicate failure
-            throw new IllegalArgumentException("Reservation time must be within restaurant opening hours.");
-        }
-
+    public Reservation create(Reservation reservation, Long restaurantId) {
+        Restaurant restaurant = restaurantRepository.findById(restaurantId)
+                .orElseThrow(() -> new ResourceNotFoundException("Restaurant not found with id: " + restaurantId));
+        
+        reservation.setRestaurant(restaurant);
         reservation.setStatus(ReservationStatus.PENDING);
         return reservationRepository.save(reservation);
     }
 
-    public Reservation getReservationById(Long id) {
-        return reservationRepository.findById(id).orElse(null);
+    public void cancel(Long id) {
+        Reservation reservation = reservationRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation not found with id: " + id));
+        reservationRepository.delete(reservation);
     }
     
     public List<Reservation> getAllReservations() {
         return reservationRepository.findAll();
     }
-
-    public List<Reservation> getReservationsByRestaurantId(Long restaurantId) {
-        return reservationRepository.findByRestaurantId(restaurantId);
+    
+    public Optional<Reservation> getReservationById(Long id) {
+        return reservationRepository.findById(id);
     }
-
-    public Reservation updateReservationStatus(Long id, ReservationStatus status) {
-        Reservation reservation = reservationRepository.findById(id).orElse(null);
-        if (reservation != null) {
-            reservation.setStatus(status);
-            return reservationRepository.save(reservation);
+    
+    public Reservation updateStatus(Long id, ReservationStatus status) {
+        Optional<Reservation> reservation = reservationRepository.findById(id);
+        if (reservation.isPresent()) {
+            Reservation res = reservation.get();
+            res.setStatus(status);
+            return reservationRepository.save(res);
         }
-        return null;
-    }
-
-    public void cancelReservation(Long id) {
-        reservationRepository.deleteById(id);
+        throw new ResourceNotFoundException("Reservation not found with id: " + id);
     }
 }

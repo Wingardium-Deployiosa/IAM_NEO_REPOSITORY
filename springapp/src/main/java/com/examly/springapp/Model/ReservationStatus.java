@@ -1,4 +1,4 @@
-package com.examly.springapp.model;
+package com.examly.springapp.Model;
 
 public enum ReservationStatus {
     PENDING,

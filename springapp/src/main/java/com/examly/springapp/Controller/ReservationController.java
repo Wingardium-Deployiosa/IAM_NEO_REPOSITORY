@@ -1,62 +1,93 @@
-package com.examly.springapp.controller;
+package com.examly.springapp.Controller;
 
-import com.examly.springapp.model.Reservation;
-import com.examly.springapp.model.ReservationStatus;
-import com.examly.springapp.service.ReservationService;
+import com.examly.springapp.Model.Reservation;
+import com.examly.springapp.Model.ReservationStatus;
+import com.examly.springapp.Model.Restaurant;
+import com.examly.springapp.Repository.ReservationRepository;
+import com.examly.springapp.Repository.RestaurantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/reservations")
-@CrossOrigin(origins = "http://localhost:8081") // Allows requests from your React app
+@RequestMapping("/api")
+// @CrossOrigin(origins = "*")
 public class ReservationController {
 
-    @Autowired
-    private ReservationService reservationService;
+@Autowired
+private ReservationRepository reservationRepository;
 
-    @PostMapping
-    public ResponseEntity<?> createReservation(@RequestBody Reservation reservation) {
-        try {
-            Reservation createdReservation = reservationService.createReservation(reservation);
-            return new ResponseEntity<>(createdReservation, HttpStatus.CREATED);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
-    }
+@Autowired
+private RestaurantRepository restaurantRepository;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Reservation> getReservationById(@PathVariable Long id) {
-        Reservation reservation = reservationService.getReservationById(id);
-        return reservation != null ? new ResponseEntity<>(reservation, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    }
+@PostMapping("/restaurants/{restaurantId}/reservations")
+public ResponseEntity<?> createReservation(@PathVariable Long restaurantId, @RequestBody Reservation reservation) {
+Optional<Restaurant> optionalRestaurant = restaurantRepository.findById(restaurantId);
+if (!optionalRestaurant.isPresent()) {
+return new ResponseEntity<>("Restaurant not found with id: " + restaurantId, HttpStatus.NOT_FOUND);
+}
+Restaurant restaurant = optionalRestaurant.get();
 
-    @GetMapping
-    public ResponseEntity<List<Reservation>> getAllReservations() {
-        List<Reservation> reservations = reservationService.getAllReservations();
-        return new ResponseEntity<>(reservations, HttpStatus.OK);
-    }
+// Business Logic: Check if reservation time is within opening hours
+if (reservation.getReservationTime().isBefore(restaurant.getOpeningTime()) || reservation.getReservationTime().isAfter(restaurant.getClosingTime())) {
+return new ResponseEntity<>("Reservation time must be within restaurant opening hours.", HttpStatus.BAD_REQUEST);
+}
 
-    @GetMapping("/restaurant/{restaurantId}")
-    public ResponseEntity<List<Reservation>> getReservationsByRestaurantId(@PathVariable Long restaurantId) {
-        List<Reservation> reservations = reservationService.getReservationsByRestaurantId(restaurantId);
-        return new ResponseEntity<>(reservations, HttpStatus.OK);
-    }
+// Business Logic: Check for overbooking
+List<Reservation> existingReservations = reservationRepository.findByRestaurant_IdAndReservationDate(restaurantId, reservation.getReservationDate());
+if (existingReservations.size() >= restaurant.getTotalTables()) {
+return new ResponseEntity<>("No available tables for the selected date.", HttpStatus.BAD_REQUEST);
+}
 
-    @PutMapping("/{id}/status")
-    public ResponseEntity<Reservation> updateReservationStatus(@PathVariable Long id, @RequestBody Map<String, String> statusUpdate) {
-        ReservationStatus status = ReservationStatus.valueOf(statusUpdate.get("status").toUpperCase());
-        Reservation updatedReservation = reservationService.updateReservationStatus(id, status);
-        return updatedReservation != null ? new ResponseEntity<>(updatedReservation, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    }
+reservation.setRestaurant(restaurant);
+reservation.setStatus(ReservationStatus.PENDING);
+Reservation savedReservation = reservationRepository.save(reservation);
+return new ResponseEntity<>(savedReservation, HttpStatus.CREATED);
+}
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> cancelReservation(@PathVariable Long id) {
-        reservationService.cancelReservation(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
+@GetMapping("/reservations/{id}")
+public ResponseEntity<Reservation> getReservationById(@PathVariable Long id) {
+Optional<Reservation> reservation = reservationRepository.findById(id);
+return reservation.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
+.orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+}
+
+@GetMapping("/reservations")
+public ResponseEntity<List<Reservation>> getAllReservations() {
+List<Reservation> reservations = reservationRepository.findAll();
+return new ResponseEntity<>(reservations, HttpStatus.OK);
+}
+@GetMapping("/reservations/customer/{email}")
+public ResponseEntity<List<Reservation>> getReservationsByCustomerEmail(@PathVariable String email) {
+List<Reservation> reservations = reservationRepository.findByCustomerEmail(email);
+return new ResponseEntity<>(reservations, HttpStatus.OK);
+}
+
+@PutMapping("/reservations/{id}/status")
+public ResponseEntity<Reservation> updateReservationStatus(@PathVariable Long id, @RequestBody Map<String, String> statusUpdate) {
+Optional<Reservation> optionalReservation = reservationRepository.findById(id);
+if (optionalReservation.isPresent()) {
+Reservation reservation = optionalReservation.get();
+ReservationStatus status = ReservationStatus.valueOf(statusUpdate.get("status").toUpperCase());
+reservation.setStatus(status);
+Reservation updatedReservation = reservationRepository.save(reservation);
+return new ResponseEntity<>(updatedReservation, HttpStatus.OK);
+} else {
+return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+}
+}
+
+@DeleteMapping("/reservations/{id}")
+public ResponseEntity<Void> cancelReservation(@PathVariable Long id) {
+if (reservationRepository.existsById(id)) {
+reservationRepository.deleteById(id);
+return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+} else {
+return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+}
+}
 }
