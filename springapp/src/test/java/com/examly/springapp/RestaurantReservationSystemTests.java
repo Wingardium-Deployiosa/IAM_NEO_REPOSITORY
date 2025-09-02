@@ -1,9 +1,9 @@
 package com.examly.springapp;
 
-import com.examly.springapp.Model.*;
-import com.examly.springapp.Repository.*;
-import com.examly.springapp.Service.*;
-import com.examly.springapp.Exception.*;
+import com.examly.springapp.model.*;
+import com.examly.springapp.repository.*;
+import com.examly.springapp.service.*;
+import com.examly.springapp.exception.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

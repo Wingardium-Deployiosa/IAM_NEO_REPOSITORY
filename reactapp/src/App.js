@@ -1,10 +1,10 @@
 import React, {useState, createContext, useContext} from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import {jwt_decode} from 'jwt-decode';
+import {jwtDecode} from 'jwt-decode';
 
 import RestaurantList from './components/RestaurantList';
-import RestaurantDetail from './components/RestaurantDetails';
+import RestaurantDetail from './components/RestaurantDetail';
 import ReservationList from './components/ReservationList';
 
 import './App.css';
@@ -64,7 +64,7 @@ function App() {
 
     const login = (token) => {
         localStorage.setItem('token', token);
-        const decodedToken = jwt_decode(token);
+        const decodedToken = jwtDecode(token);
         setUser({ email: decodedToken.sub, role: decodedToken.role });
     };
 

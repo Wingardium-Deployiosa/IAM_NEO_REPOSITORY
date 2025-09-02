@@ -1,10 +1,11 @@
 package com.examly.springapp.Controller;
 
-import com.examly.springapp.Model.Reservation;
-import com.examly.springapp.Model.ReservationStatus;
-import com.examly.springapp.Model.Restaurant;
-import com.examly.springapp.Repository.ReservationRepository;
-import com.examly.springapp.Repository.RestaurantRepository;
+import com.examly.springapp.model.Reservation;
+import com.examly.springapp.model.ReservationStatus;
+import com.examly.springapp.model.Restaurant;
+import com.examly.springapp.repository.ReservationRepository;
+import com.examly.springapp.repository.RestaurantRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

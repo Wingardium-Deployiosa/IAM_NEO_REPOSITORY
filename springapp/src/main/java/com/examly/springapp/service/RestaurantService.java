@@ -1,8 +1,9 @@
-package com.examly.springapp.Service;
+package com.examly.springapp.service;
 
-import com.examly.springapp.Exception.ResourceNotFoundException;
-import com.examly.springapp.Model.Restaurant;
-import com.examly.springapp.Repository.RestaurantRepository;
+import com.examly.springapp.exception.ResourceNotFoundException;
+import com.examly.springapp.model.Restaurant;
+import com.examly.springapp.repository.RestaurantRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -27,7 +28,7 @@ public class RestaurantService {
  }
 
  public Restaurant updateRestaurant(Long id, Restaurant restaurantDetails) {
- Restaurant restaurant = getRestaurantById(id); // Re-uses the findById logic to ensure it exists
+ Restaurant restaurant = getRestaurantById(id);
  restaurant.setName(restaurantDetails.getName());
  restaurant.setAddress(restaurantDetails.getAddress());
  restaurant.setCuisine(restaurantDetails.getCuisine());
@@ -38,12 +39,11 @@ public class RestaurantService {
  }
 
  public void deleteRestaurant(Long id) {
- Restaurant restaurant = getRestaurantById(id); // Ensures restaurant exists before deleting
+ Restaurant restaurant = getRestaurantById(id);
  restaurantRepository.delete(restaurant);
  }
 
  public List<Restaurant> searchByCuisine(String cuisine) {
- // This method name matches the test file's requirement
  return restaurantRepository.findByCuisineIgnoreCase(cuisine);
  }
 }

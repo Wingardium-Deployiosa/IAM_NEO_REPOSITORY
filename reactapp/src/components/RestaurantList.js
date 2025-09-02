@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getAllRestaurants, searchByCuisine, createRestaurant, deleteRestaurant } from '../utils/RestaurantService';
+import RestaurantService from '../utils/RestaurantService';
 import RestaurantSearch from './RestaurantSearch';
 import { useAuth } from '../App';
 import './RestaurantList.css'; 
@@ -9,6 +9,8 @@ import './RestaurantSearch.css';
 const RestaurantList = () => {
     const [restaurants, setRestaurants] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const { user } = useAuth();
     
     // State for the "Add Restaurant" form
@@ -18,24 +20,35 @@ const RestaurantList = () => {
     const [openingTime, setOpeningTime] = useState('11:00');
     const [closingTime, setClosingTime] = useState('22:00');
     const [totalTables, setTotalTables] = useState(10);
-    const [error, setError] = useState('');
-
+    const [formError, setFormError] = useState('');
+    
     useEffect(() => {
         loadRestaurants();
     }, []);
 
     const loadRestaurants = () => {
-        getAllRestaurants()
-            .then(response => setRestaurants(response.data))
-            .catch(error => console.error("There was an error fetching the restaurants!", error));
+        setLoading(true);
+        RestaurantService.getAll()
+            .then(response => {
+                const data = response && response.data ? response.data : response;
+                setRestaurants(data || []);
+                setLoading(false);
+            })
+            .catch(error => {
+                setError('Failed to fetch restaurants');
+                setLoading(false);
+            });
     };
 
     const handleSearchChange = (event) => setSearchTerm(event.target.value);
     
     const handleSearchSubmit = () => {
         if (searchTerm) {
-            searchByCuisine(searchTerm)
-                .then(response => setRestaurants(response.data))
+            RestaurantService.searchByCuisine(searchTerm)
+                .then(response => {
+                    const data = response && response.data ? response.data : response;
+                    setRestaurants(data || []);
+                })
                 .catch(error => console.error("Error searching by cuisine!", error));
         } else {
             loadRestaurants();
@@ -46,25 +59,28 @@ const RestaurantList = () => {
         event.preventDefault();
         const restaurantData = { name, address, cuisine, openingTime, closingTime, totalTables };
         
-        createRestaurant(restaurantData)
+        RestaurantService.create(restaurantData)
             .then(() => {
                 alert('Restaurant added successfully!');
-                setName(''); setAddress(''); setCuisine(''); setError('');
+                setName(''); setAddress(''); setCuisine(''); setFormError('');
                 loadRestaurants();
             })
             .catch(err => {
-                setError('Failed to add restaurant. Please try again.');
+                setFormError('Failed to add restaurant. Please try again.');
                 console.error(err);
             });
     };
 
     const handleDeleteRestaurant = (id) => {
         if (window.confirm('Are you sure you want to delete this restaurant?')) {
-            deleteRestaurant(id)
+            RestaurantService.delete(id)
                 .then(() => loadRestaurants())
                 .catch(error => console.error("Error deleting restaurant!", error));
         }
     };
+
+    if (loading) return <div data-testid="loading">Loading...</div>;
+    if (error) return <div data-testid="error">Failed to fetch restaurants</div>;
 
     return (
         <div className="restaurant-list-container">
@@ -80,20 +96,20 @@ const RestaurantList = () => {
                         <input type="number" value={totalTables} onChange={e => setTotalTables(parseInt(e.target.value))} placeholder="Total Tables" required />
                         <button type="submit">Add Restaurant</button>
                     </form>
-                    {error && <p className="error-message">{error}</p>}
+                    {formError && <p className="error-message">{formError}</p>}
                 </div>
             )}
             
             <hr />
 
-            <h2>Restaurants</h2>
+            <h2>All Restaurants</h2>
             <RestaurantSearch 
                 searchTerm={searchTerm}
                 onSearchChange={handleSearchChange}
                 onSearchSubmit={handleSearchSubmit}
             />
             <div className="restaurant-grid">
-                {restaurants.length > 0 ? (
+                {restaurants && restaurants.length > 0 ? (
                     restaurants.map(restaurant => (
                         <div key={restaurant.id} className="restaurant-card-wrapper">
                             <Link to={`/restaurants/${restaurant.id}`} className="restaurant-card-link">

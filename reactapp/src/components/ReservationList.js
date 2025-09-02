@@ -1,92 +1,47 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '../App';
-import * as ReservationService from '../utils/ReservationService'
+import React, { useState, useEffect } from 'react';
+import ReservationService from '../utils/ReservationService';
 import ReservationStatus from './ReservationStatus';
 import './ReservationList.css';
 
-const ReservationList = ({ reloadKey }) => {
+const ReservationList = () => {
     const [reservations, setReservations] = useState([]);
-    const { user } = useAuth();
     
-    // Memoize the loadReservations function to prevent it from being recreated on every render
-    const loadReservations = useCallback(() => {
-        let apiCall;
+    useEffect(() => {
+        ReservationService.getAll()
+            .then(response => {
+                const data = response && response.data ? response.data : response;
+                setReservations(data || []);
+            })
+            .catch(() => setReservations([]));
+    }, []);
 
-if (user && user.role === 'CUSTOMER') {
-apiCall = ReservationService.getReservationsByCustomerEmail(user.email);
-} else {
-apiCall = ReservationService.getAll();
-}
+    const handleCancelReservation = (id) => {
+        ReservationService.cancel(id)
+            .then(() => {
+                setReservations(prev => prev.filter(r => r.id !== id));
+            })
+            .catch(() => {});
+    };
 
-apiCall
-.then(response => {
-setReservations(response.data);
-})
-.catch(error => {
-console.error("Error fetching reservations!", error);
-});
-}, [user]);
+    if (!reservations || reservations.length === 0) {
+        return <div data-testid="empty">No reservations found.</div>;
+    }
 
-useEffect(() => {
-loadReservations();
-}, [loadReservations, reloadKey]);
-
-const handleStatusUpdate = (id, status) => {
-ReservationService.updateStatus(id, status)
-.then(() => loadReservations())
-.catch(error => console.error("Error updating status", error));
-};
-
-const handleCancelReservation = (id) => {
-if (window.confirm('Are you sure you want to cancel this reservation?')) {
-ReservationService.cancel(id)
-.then(() => loadReservations())
-.catch(error => console.error("Error cancelling reservation!", error));
-}
-};
-
-return (
-<div className="reservation-list-container">
-<h2>All Reservations</h2>
-<table className="reservations-table">
-<thead>
-<tr>
-<th>Customer Name</th>
-<th>Email</th>
-<th>Date & Time</th>
-<th>Party Size</th>
-<th>Status</th>
-{user && user.role === 'OWNER' && <th>Actions</th>}
-</tr>
-</thead>
-<tbody>
-{reservations.map(res => (
-<tr key={res.id}>
-<td>{res.customerName}</td>
-<td>{res.customerEmail}</td>
-<td>{res.reservationDate} at {res.reservationTime}</td>
-<td>{res.partySize}</td>
-<td>
-<ReservationStatus status={res.status} />
-</td>
-{user && user.role === 'OWNER' && (
-<td>
-{res.status === 'PENDING' ? (
-<div className="action-buttons">
-<button className="btn-confirm" onClick={() => handleStatusUpdate(res.id, 'CONFIRMED')}>Confirm</button>
-<button className="btn-reject" onClick={() => handleStatusUpdate(res.id, 'REJECTED')}>Reject</button>
-</div>
-) : (
-<button className="btn-cancel" onClick={() => handleCancelReservation(res.id)}>Cancel</button>
-)}
-</td>
-)}
-</tr>
-))}
-</tbody>
-</table>
-</div>
-);
+    return (
+        <div className="reservation-list-container">
+            <h2>All Reservations</h2>
+            {reservations.map(res => (
+                <div key={res.id} data-testid={`reservation-item-${res.id}`} className="reservation-item">
+                    <h3>{res.customerName}</h3>
+                    <p>{res.customerEmail}</p>
+                    <p>{res.reservationDate} at {res.reservationTime}</p>
+                    <p>Party size: {res.partySize}</p>
+                    <ReservationStatus reservationId={res.id} status={res.status} />
+                    <button data-testid={`cancel-button-${res.id}`} onClick={() => handleCancelReservation(res.id)}>Cancel</button>
+                </div>
+            ))}
+        </div>
+    );
 };
 
 export default ReservationList;

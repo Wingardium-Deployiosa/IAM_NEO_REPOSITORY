@@ -1,8 +1,10 @@
-package com.examly.springapp.Repository;
+package com.examly.springapp.repository;
 
-import com.examly.springapp.Model.Reservation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import com.examly.springapp.model.Reservation;
+
 import java.time.LocalDate;
 import java.util.List;
 
