@@ -1,20 +1,19 @@
+
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8080/api';
+const API_BASE_URL = 'https://ide-dfdaccffbaeccdbcacadadfbbcbbebfbde.premiumproject.examly.io/proxy/8080/api';
 
 const ReservationService = {
-    create: (reservationData, restaurantId) => {
-        return axios.post(`${API_BASE_URL}/restaurants/${restaurantId}/reservations`, reservationData);
-    },
-    getAll: () => {
-        return axios.get(`${API_BASE_URL}/reservations`);
-    },
-    updateStatus: (id, status) => {
-        return axios.put(`${API_BASE_URL}/reservations/${id}/status`, { status });
-    },
-    cancel: (id) => {
-        return axios.delete(`${API_BASE_URL}/reservations/${id}`);
-    }
+  create: (reservationData) => {
+    const { restaurantId, ...data } = reservationData;
+    return axios.post(`${API_BASE_URL}/restaurants/${restaurantId}/reservations`, data);
+  },
+  getAll: () => axios.get(`${API_BASE_URL}/reservations`),
+  getByUser: (userEmail) => axios.get(`${API_BASE_URL}/users/${userEmail}/reservations`),
+  updateStatus: (id, status) => axios.put(`${API_BASE_URL}/reservations/${id}/status`, { status }),
+  // keep confirm alias for components/tests that call confirm
+  confirm: (id) => axios.put(`${API_BASE_URL}/reservations/${id}/status`, { status: 'CONFIRMED' }),
+  cancel: (id) => axios.delete(`${API_BASE_URL}/reservations/${id}`),
 };
 
 export default ReservationService;

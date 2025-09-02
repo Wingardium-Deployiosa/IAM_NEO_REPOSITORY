@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Reservations</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Reservation System Test</h1>
+    
+    <div>
+        <h2>Actions</h2>
+        <button onclick="addSampleReservations()">Add Sample Reservations</button>
+        <button onclick="getReservationsCount()">Get Reservations Count</button>
+        <button onclick="getAllReservations()">Get All Reservations</button>
+    </div>
+    
+    <div id="results" style="margin-top: 20px; padding: 10px; border: 1px solid #ccc;">
+        <h3>Results:</h3>
+        <div id="output"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://ide-dfdaccffbaeccdbcacadadfbbcbbebfbde.premiumproject.examly.io/proxy/8080/api';
+        
+        function addSampleReservations() {
+            $.ajax({
+                url: API_BASE + '/test/add-sample-reservations',
+                method: 'POST',
+                success: function(data) {
+                    $('#output').html('<p style="color: green;">Success: ' + data + '</p>');
+                },
+                error: function(xhr, status, error) {
+                    $('#output').html('<p style="color: red;">Error: ' + xhr.responseText + '</p>');
+                }
+            });
+        }
+        
+        function getReservationsCount() {
+            $.ajax({
+                url: API_BASE + '/test/reservations-count',
+                method: 'GET',
+                success: function(data) {
+                    $('#output').html('<p style="color: blue;">Count: ' + data + '</p>');
+                },
+                error: function(xhr, status, error) {
+                    $('#output').html('<p style="color: red;">Error: ' + xhr.responseText + '</p>');
+                }
+            });
+        }
+        
+        function getAllReservations() {
+            $.ajax({
+                url: API_BASE + '/reservations',
+                method: 'GET',
+                success: function(data) {
+                    $('#output').html('<p style="color: blue;">Reservations: <pre>' + JSON.stringify(data, null, 2) + '</pre></p>');
+                },
+                error: function(xhr, status, error) {
+                    $('#output').html('<p style="color: red;">Error: ' + xhr.responseText + '</p>');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

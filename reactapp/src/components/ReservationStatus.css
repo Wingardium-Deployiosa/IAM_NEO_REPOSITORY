@@ -1,20 +1,39 @@
-.status-badge {
-    padding: 5px 10px;
-    border-radius: 12px;
-    color: white;
-    font-size: 12px;
-    font-weight: bold;
-    text-transform: uppercase;
+.reservation-status {
+  display: flex;
+  gap: 10px;
 }
 
-.status-pending {
-    background-color: #ffc107; /* Yellow */
+.btn-confirm {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
-.status-confirmed {
-    background-color: #28a745; /* Green */
+.btn-confirm:hover {
+  background-color: #218838;
 }
 
-.status-rejected {
-    background-color: #dc3545; /* Red */
+.btn-disabled {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: not-allowed;
+}
+
+.btn-cancel {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-cancel:hover {
+  background-color: #c82333;
 }
