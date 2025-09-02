@@ -20,15 +20,6 @@ jest.mock('react-router-dom', () => ({
   useNavigate: () => jest.fn()
 }));
 
-// Mock useAuth hook
-jest.mock('../App', () => ({
-  useAuth: () => ({
-    user: { email: 'test@example.com', role: 'CUSTOMER' },
-    login: jest.fn(),
-    logout: jest.fn()
-  })
-}));
-
 import RestaurantService from '../utils/RestaurantService';
 import ReservationService from '../utils/ReservationService';
 
@@ -87,7 +78,7 @@ describe('Restaurant Reservation System Tests', () => {
 
   // Test Case 1: RestaurantList renders correctly with restaurants
   test('RestaurantList displays list of restaurants', async () => {
-    RestaurantService.getAll.mockResolvedValue({ data: mockRestaurants });
+    RestaurantService.getAll.mockResolvedValue(mockRestaurants);
     
     render(
       <BrowserRouter>
@@ -134,7 +125,7 @@ describe('Restaurant Reservation System Tests', () => {
 
   // Test Case 4: RestaurantDetail displays restaurant information
   test('RestaurantDetail shows restaurant details and reservation form', async () => {
-    RestaurantService.getById.mockResolvedValue({ data: mockRestaurants[0] });
+    RestaurantService.getById.mockResolvedValue(mockRestaurants[0]);
     
     render(
       <BrowserRouter>
