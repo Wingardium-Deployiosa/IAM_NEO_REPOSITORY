@@ -1,7 +1,10 @@
+// src/components/LoginPage.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
-import axios from 'axios';
+import AuthService from '../utils/AuthService';
+import './LoginPage.css';
+
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -12,42 +15,74 @@ const LoginPage = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    
     try {
-      const response = await axios.post('https://8080-dfdaccffbaeccdbcacadadfbbcbbebfbde.premiumproject.examly.io/api/users/login', { email, password });
-      if (auth && auth.login) {
-        auth.login(response.data);
-      }
+      const response = await AuthService.login({ email, password });
+      const { role, email: userEmail } = response.data;
+      auth.login({ email: userEmail, role });
+      alert('Login successful!');
       navigate('/');
-    } catch (err) {
-      setError('Invalid credentials, Retry');
-      console.error('Login failed:', err);
+    } catch (error) {
+      alert('Login failed: Invalid credentials');
+      setError('Invalid credentials');
     }
   };
 
   return (
-    <div className="login-container">
-      <h2>Login</h2>
-      <form onSubmit={handleLogin}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <button type="submit">Login</button>
-      </form>
-      {error && <p className="error-message" style={{ color: 'red' }}>[Error - You need to specify the message]</p>}
+    <div className="login-page">
+      <div className="login-container">
+        <div className="login-card">
+          <div className="login-header">
+            <div className="logo">
+              <i className="fas fa-utensils"></i>
+            </div>
+            <h1>Welcome Back</h1>
+            <p>Sign in to continue to Restaurant Reservations</p>
+          </div>
+
+          <form onSubmit={handleLogin} className="login-form">
+            <div className="form-group">
+              <div className="input-wrapper">
+                <i className="fas fa-envelope input-icon"></i>
+                <input
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="form-input"
+                />
+              </div>
+            </div>
+
+            <div className="form-group">
+              <div className="input-wrapper">
+                <i className="fas fa-lock input-icon"></i>
+                <input
+                  type="password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="form-input"
+                />
+              </div>
+            </div>
+
+            <button type="submit" className="login-btn">
+              Sign In
+            </button>
+          </form>
+
+          {error && (
+            <div className="error-message">
+              {error}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
 
 export default LoginPage;
-

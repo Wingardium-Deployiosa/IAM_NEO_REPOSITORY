@@ -1,3 +1,4 @@
+// src/components/AdminHome.js
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import ReservationService from '../utils/ReservationService';
@@ -8,13 +9,17 @@ const AdminHome = () => {
   const { user } = useAuth() || {};
 
   useEffect(() => {
+    let mounted = true;
     ReservationService.getAll()
       .then((response) => {
-        const data = response.data || response;
+        const data = response && response.data ? response.data : response;
         const sorted = Array.isArray(data) ? data.sort((a, b) => new Date(b.reservationDate) - new Date(a.reservationDate)) : [];
-        setRecentReservations(sorted.slice(0, 5));
+        if (mounted) setRecentReservations(sorted.slice(0, 5));
       })
       .catch((error) => console.error('Error fetching reservations', error));
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   return (
@@ -27,9 +32,15 @@ const AdminHome = () => {
         {recentReservations.length > 0 ? (
           recentReservations.map((res) => (
             <div key={res.id} className="booking-summary-card">
-              <p><strong>Customer:</strong> {res.customerName}</p>
-              <p><strong>Date:</strong> {res.reservationDate} at {res.reservationTime}</p>
-              <p><strong>Status:</strong> {res.status}</p>
+              <p>
+                <strong>Customer:</strong> {res.customerName}
+              </p>
+              <p>
+                <strong>Date:</strong> {res.reservationDate} at {res.reservationTime}
+              </p>
+              <p>
+                <strong>Status:</strong> {res.status}
+              </p>
               <Link to={`/reservations/${res.id}`} className="details-button">
                 See Details
               </Link>
@@ -44,4 +55,3 @@ const AdminHome = () => {
 };
 
 export default AdminHome;
-

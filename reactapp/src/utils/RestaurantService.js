@@ -1,22 +1,18 @@
+
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8080/api/restaurants';
+const API_URL = 'https://ide-dfdaccffbaeccdbcacadadfbbcbbebfbde.premiumproject.examly.io/proxy/8080/api/restaurants';
 
 const RestaurantService = {
-    getAll: () => axios.get(API_URL),
-    getById: (id) => axios.get(`${API_URL}/${id}`),
-    searchByCuisine: (cuisine) => axios.get(`${API_URL}/cuisine/${cuisine}`),
-    create: (restaurantData) => axios.post(API_URL, restaurantData),
-    update: (id, restaurantData) => axios.put(`${API_URL}/${id}`, restaurantData),
-    delete: (id) => axios.delete(`${API_URL}/${id}`)
+  getAll: () => axios.get(API_URL),
+  getById: (id) => axios.get(`${API_URL}/${id}`),
+  getByOwner: (ownerEmail) => axios.get(`${API_URL}/owner/${ownerEmail}`),
+  searchByCuisine: (cuisine) => axios.get(`${API_URL}/cuisine/${cuisine}`),
+  create: (restaurantData) => axios.post(`${API_URL}`, restaurantData),
+  update: (id, restaurantData) => axios.put(`${API_URL}/${id}`, restaurantData),
+  delete: (id) => axios.delete(`${API_URL}/${id}`),
+  getAvailableSeats: (id) => axios.get(`${API_URL}/${id}/available-seats`),
+  getAvailableSeatsForDate: (id, date) => axios.get(`${API_URL}/${id}/available-seats/${date}`),
 };
 
 export default RestaurantService;
-
-// Named exports for backward compatibility
-export const getAllRestaurants = RestaurantService.getAll;
-export const getRestaurantById = RestaurantService.getById;
-export const searchByCuisine = RestaurantService.searchByCuisine;
-export const createRestaurant = RestaurantService.create;
-export const updateRestaurant = RestaurantService.update;
-export const deleteRestaurant = RestaurantService.delete;

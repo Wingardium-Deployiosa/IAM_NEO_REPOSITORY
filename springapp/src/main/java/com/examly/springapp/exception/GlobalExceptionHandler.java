@@ -9,18 +9,18 @@ import org.springframework.web.context.request.WebRequest;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
- @ExceptionHandler(ResourceNotFoundException.class)
- public ResponseEntity<?> resourceNotFoundException(ResourceNotFoundException ex, WebRequest request) {
- return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
- }
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<?> resourceNotFoundException(ResourceNotFoundException ex, WebRequest request) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
 
- @ExceptionHandler(ValidationException.class)
- public ResponseEntity<?> validationException(ValidationException ex, WebRequest request) {
- return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
- }
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<?> validationException(ValidationException ex, WebRequest request) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
 
- @ExceptionHandler(Exception.class)
- public ResponseEntity<?> globalExceptionHandler(Exception ex, WebRequest request) {
- return new ResponseEntity<>("An internal error occurred: " + ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
- }
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<?> globalExceptionHandler(Exception ex, WebRequest request) {
+        return new ResponseEntity<>("An internal error occurred: " + ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }

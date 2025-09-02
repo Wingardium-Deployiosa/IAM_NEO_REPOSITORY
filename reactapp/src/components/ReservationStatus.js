@@ -1,39 +1,48 @@
+// src/components/ReservationStatus.js
 import React from 'react';
 import ReservationService from '../utils/ReservationService';
 import './ReservationStatus.css';
 
 const ReservationStatus = ({ reservationId, status, onStatusUpdate }) => {
-    const getStatusClass = () => {
-        switch (status) {
-            case 'CONFIRMED': return 'status-confirmed';
-            case 'REJECTED': return 'status-rejected';
-            case 'PENDING': default: return 'status-pending';
-        }
-    };
-
-    const handleConfirm = () => {
-        if (onStatusUpdate) {
-            onStatusUpdate(reservationId, 'CONFIRMED');
-        } else {
-            ReservationService.updateStatus(reservationId, 'CONFIRMED');
-        }
-    };
-
-    if (status === 'CONFIRMED') {
-        return (
-            <div>
-                <span className={`status-badge ${getStatusClass()}`}>{status}</span>
-                <button data-testid={`confirm-button-${reservationId}`} disabled>Confirm</button>
-            </div>
-        );
+  const handleConfirm = () => {
+    if (onStatusUpdate) {
+      onStatusUpdate(reservationId, 'CONFIRMED');
     }
+    ReservationService.updateStatus(reservationId, 'CONFIRMED').catch(err => {
+      console.error('Error updating status:', err);
+    });
+  };
 
-    return (
-        <div>
-            <span className={`status-badge ${getStatusClass()}`}>{status}</span>
-            <button data-testid={`confirm-button-${reservationId}`} onClick={handleConfirm}>Confirm</button>
-        </div>
-    );
+  const handleCancel = async () => {
+    try {
+      await ReservationService.updateStatus(reservationId, 'CANCELLED');
+      if (onStatusUpdate) {
+        onStatusUpdate(reservationId, 'CANCELLED');
+      }
+    } catch (err) {
+      console.error('Error updating status:', err);
+    }
+  };
+
+  return (
+    <div className="reservation-status">
+      <button
+        data-testid={`confirm-button-${reservationId}`}
+        disabled={status === 'CONFIRMED'}
+        onClick={handleConfirm}
+        className={status === 'CONFIRMED' ? 'btn-disabled' : 'btn-confirm'}
+      >
+        {status === 'CONFIRMED' ? 'Confirmed' : 'Confirm'}
+      </button>
+      <button
+        data-testid={`cancel-button-${reservationId}`}
+        onClick={handleCancel}
+        className="btn-cancel"
+      >
+        Cancel
+      </button>
+    </div>
+  );
 };
 
 export default ReservationStatus;

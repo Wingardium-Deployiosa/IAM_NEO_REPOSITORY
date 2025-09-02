@@ -1,67 +1,114 @@
-import React, { useState } from 'react';
+// src/components/RestaurantSearch.js
+import React, { useState, useRef } from 'react';
 import RestaurantService from '../utils/RestaurantService';
+import './RestaurantSearch.css';
 
-const RestaurantSearch = ({ searchTerm, onSearchChange, onSearchSubmit }) => {
-    const [localSearchTerm, setLocalSearchTerm] = useState('');
-    const [results, setResults] = useState([]);
-    const [searched, setSearched] = useState(false);
+const DEFAULT_DEBOUNCE_MS = 300;
 
-    const handleLocalSearch = () => {
-        if (localSearchTerm) {
-            RestaurantService.searchByCuisine(localSearchTerm)
-                .then(response => {
-                    const data = response && response.data ? response.data : response;
-                    setResults(data || []);
-                    setSearched(true);
-                })
-                .catch(() => {
-                    setResults([]);
-                    setSearched(true);
-                });
-        }
-    };
+const RestaurantSearch = ({ onSearch, onResults, debounceMs = DEFAULT_DEBOUNCE_MS }) => {
+  const [cuisine, setCuisine] = useState('');
+  const [restaurants, setRestaurants] = useState([]);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const debounceRef = useRef(null);
 
-    // If used as standalone component
-    if (!searchTerm && !onSearchChange && !onSearchSubmit) {
-        return (
-            <div className="search-container">
-                <input
-                    data-testid="search-input"
-                    type="text"
-                    placeholder="Search by cuisine..."
-                    value={localSearchTerm}
-                    onChange={(e) => setLocalSearchTerm(e.target.value)}
-                    className="search-input"
-                />
-                <button data-testid="search-button" onClick={handleLocalSearch} className="search-button">
-                    Search
-                </button>
-                {searched && results && results.length === 0 && (
-                    <div data-testid="no-results">No matching restaurants found.</div>
-                )}
-                {results && results.map(restaurant => (
-                    <div key={restaurant.id}>{restaurant.name}</div>
-                ))}
-            </div>
-        );
+  // Called when input changes; if parent provided onSearch (RestaurantList integration),
+  // we call it (debounced) so RestaurantList can reorder its array live.
+  const handleChange = (e) => {
+    const val = e.target.value;
+    setCuisine(val);
+
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      if (onSearch) {
+        onSearch(val.trim());
+      }
+    }, debounceMs);
+  };
+
+  // Called on button click or Enter. If parent provided onSearch, prefer that.
+  // Otherwise call service directly (standalone mode used in some tests).
+  const handleSearch = async () => {
+    const term = cuisine.trim();
+    if (onSearch) {
+      onSearch(term);
+      return;
     }
 
-    // If used with props (integrated mode)
-    return (
-        <div className="search-container">
-            <input
-                data-testid="search-input"
-                type="text"
-                placeholder="Search by cuisine..."
-                value={searchTerm}
-                onChange={onSearchChange}
-                className="search-input"
-            />
-            <button data-testid="search-button" onClick={onSearchSubmit} className="search-button">
-                Search
-            </button>
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await RestaurantService.searchByCuisine(term);
+      const data = response && response.data ? response.data : response;
+      const restaurantList = Array.isArray(data) ? data : [];
+      setRestaurants(restaurantList);
+      if (onResults) onResults(restaurantList);
+    } catch (err) {
+      console.error('Error searching by cuisine!', err);
+      setError('Failed to search restaurants.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      // cancel pending debounce so button search runs immediately
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      handleSearch();
+    }
+  };
+
+  return (
+    <div className="search-section">
+      <div className="search-container">
+        <div className="search-box">
+          <div className="search-icon">
+            <i className="fas fa-search"></i>
+          </div>
+          <input
+            data-testid="search-input"
+            type="text"
+            value={cuisine}
+            onChange={handleChange}
+            onKeyDown={handleKeyDown}
+            placeholder="Search for restaurants, cuisines..."
+            className="search-input"
+          />
+          <button
+            data-testid="search-button"
+            onClick={handleSearch}
+            className="search-btn"
+          >
+            Search
+          </button>
         </div>
-    );
+      </div>
+
+      {/* Standalone results display for tests (only when not integrated via onSearch) */}
+      {!onSearch && (
+        <div className="search-results">
+          {loading && <div data-testid="loading" className="loading-state">Searching restaurants...</div>}
+          {error && <div data-testid="error" className="error-state">{error}</div>}
+          {!loading && !error && restaurants.length === 0 && cuisine && (
+            <div data-testid="no-results" className="no-results-state">No matching restaurants found.</div>
+          )}
+          {!loading && !error && restaurants.length > 0 && (
+            <div className="restaurant-grid">
+              {restaurants.map((r) => (
+                <div key={r.id} className="restaurant-card">
+                  <h3>{r.name}</h3>
+                  <p>{r.address}</p>
+                  <p>Cuisine: {r.cuisine}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+);
 };
 
 export default RestaurantSearch;

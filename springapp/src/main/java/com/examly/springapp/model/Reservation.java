@@ -4,17 +4,18 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-
 import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Entity
-@Table(name = "reservations")
+
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@Table(name = "reservations")
 public class Reservation {
 
     @Id
@@ -33,6 +34,7 @@ public class Reservation {
     private int partySize;
     
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     private ReservationStatus status = ReservationStatus.PENDING;
     
     private String specialRequests;

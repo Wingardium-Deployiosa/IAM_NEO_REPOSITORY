@@ -1,65 +1,38 @@
 package com.examly.springapp.model;
 
- 
-
-import jakarta.persistence.Entity;
-
-import jakarta.persistence.GeneratedValue;
-
-import jakarta.persistence.GenerationType;
-
-import jakarta.persistence.Id;
-
-import jakarta.persistence.Table;
-
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-
 import lombok.Builder;
-
 import lombok.Data;
-
 import lombok.NoArgsConstructor;
-
- 
-
+import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalTime;
 
- 
-
 @Entity
-
-@Table(name = "restaurants")
-
 @Data
-
-@NoArgsConstructor
-
-@AllArgsConstructor
-
 @Builder
-
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "restaurants")
 public class Restaurant {
 
- 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @Id
+    // --- THIS IS THE NEW, CRITICAL FIELD ---
+    private Long ownerId; // This links the restaurant to a user with the 'OWNER' role
 
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-
-  private Long id;
-
- 
-
-  private String name;
-
-  private String address;
-
-  private String cuisine;
-
-  private LocalTime openingTime;
-
-  private LocalTime closingTime;
-
-  private int totalTables;
-
+    private String name;
+    private String address;
+    private String cuisine;
+    @JsonFormat(pattern = "HH:mm")
+    private LocalTime openingTime;
+    
+    @JsonFormat(pattern = "HH:mm")
+    private LocalTime closingTime;
+    private int totalTables;
+    private String ownerEmail;
+    private String ownerPassword;
+    private String imageUrl;
 }

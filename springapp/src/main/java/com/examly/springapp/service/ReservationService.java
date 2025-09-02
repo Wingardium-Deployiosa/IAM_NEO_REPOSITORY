@@ -1,72 +1,68 @@
 package com.examly.springapp.service;
 
 import com.examly.springapp.exception.ResourceNotFoundException;
+import com.examly.springapp.exception.ValidationException;
 import com.examly.springapp.model.Reservation;
 import com.examly.springapp.model.ReservationStatus;
 import com.examly.springapp.model.Restaurant;
 import com.examly.springapp.repository.ReservationRepository;
 import com.examly.springapp.repository.RestaurantRepository;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ReservationService {
-    
+
     @Autowired
     private ReservationRepository reservationRepository;
-    
+
     @Autowired
     private RestaurantRepository restaurantRepository;
 
-    public Reservation create(Reservation reservation, Long restaurantId) {
+    public Reservation createReservation(Reservation reservation, Long restaurantId) {
         Restaurant restaurant = restaurantRepository.findById(restaurantId)
                 .orElseThrow(() -> new ResourceNotFoundException("Restaurant not found with id: " + restaurantId));
-        
-        // Check existing reservations for the date (as expected by tests)
-        reservationRepository.findByRestaurant_IdAndReservationDate(restaurantId, reservation.getReservationDate());
-        
+
+        // Business Logic: Check if reservation time is within opening hours
+        if (reservation.getReservationTime().isBefore(restaurant.getOpeningTime()) || reservation.getReservationTime().isAfter(restaurant.getClosingTime())) {
+            throw new ValidationException("Reservation time must be within restaurant opening hours.");
+        }
+
+        // Business Logic: Check for overbooking
+        List<Reservation> existingReservations = reservationRepository.findByRestaurant_IdAndReservationDate(restaurantId, reservation.getReservationDate());
+        if (existingReservations.size() >= restaurant.getTotalTables()) {
+            throw new ValidationException("No available tables for the selected date.");
+        }
+
         reservation.setRestaurant(restaurant);
         reservation.setStatus(ReservationStatus.PENDING);
         return reservationRepository.save(reservation);
     }
 
-    public void cancel(Long id) {
-        Reservation reservation = reservationRepository.findById(id)
+    public Reservation getReservationById(Long id) {
+        return reservationRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Reservation not found with id: " + id));
-        reservationRepository.delete(reservation);
     }
     
     public List<Reservation> getAllReservations() {
-        return reservationRepository.findAll();
+        List<Reservation> reservations = reservationRepository.findAll();
+        System.out.println("DEBUG: getAllReservations() returned " + reservations.size() + " reservations");
+        return reservations;
     }
-    
-    public Optional<Reservation> getReservationById(Long id) {
-        return reservationRepository.findById(id);
+
+    public List<Reservation> getReservationsByUserEmail(String customerEmail) {
+        return reservationRepository.findByCustomerEmail(customerEmail);
     }
-    
-    public Reservation updateStatus(Long id, ReservationStatus status) {
-        Optional<Reservation> reservation = reservationRepository.findById(id);
-        if (reservation.isPresent()) {
-            Reservation res = reservation.get();
-            res.setStatus(status);
-            return reservationRepository.save(res);
-        }
-        throw new ResourceNotFoundException("Reservation not found with id: " + id);
-    }
-    
-    // Methods expected by tests
-    public Reservation createReservation(Reservation reservation, Long restaurantId) {
-        return create(reservation, restaurantId);
-    }
-    
-    public void cancelReservation(Long id) {
-        cancel(id);
-    }
-    
+
     public Reservation updateReservationStatus(Long id, ReservationStatus status) {
-        return updateStatus(id, status);
+        Reservation reservation = getReservationById(id);
+        reservation.setStatus(status);
+        return reservationRepository.save(reservation);
+    }
+
+    public void cancelReservation(Long id) {
+        Reservation reservation = getReservationById(id);
+        reservationRepository.delete(reservation);
     }
 }

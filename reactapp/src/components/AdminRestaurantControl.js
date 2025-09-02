@@ -1,24 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import AddRestaurantForm from './AddRestaurantForm';
 import RestaurantList from './RestaurantList';
 
 const AdminRestaurantControl = () => {
-  const handleRestaurantAdded = () => {
-    // A simple way to refresh the restaurant list after a change
-    window.location.reload();
-  };
+  const [refreshKey, setRefreshKey] = useState(0);
+  const handleRestaurantAdded = () => setRefreshKey((prev) => prev + 1);
 
   return (
     <div className="admin-control-container">
       <h2>Admin Control: Manage Restaurants</h2>
-      <p>Use the form below to add a new restaurant to the system. The list below allows you to manage existing restaurants.</p>
+      <p>Use the form below to add a new restaurant to the system. The list at the bottom displays all current restaurants and allows you to delete them.</p>
       <hr />
       <AddRestaurantForm onRestaurantAdded={handleRestaurantAdded} />
       <hr />
-      <RestaurantList />
+      <RestaurantList key={refreshKey} hideAddForm={true} />
     </div>
   );
 };
 
 export default AdminRestaurantControl;
-
