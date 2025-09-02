@@ -1,4 +1,3 @@
-// src/components/AdminRestaurantControl.js
 import React, { useState } from 'react';
 import AddRestaurantForm from './AddRestaurantForm';
 import RestaurantList from './RestaurantList';
