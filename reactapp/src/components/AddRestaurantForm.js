@@ -1,4 +1,4 @@
-// src/components/AddRestaurantForm.js
+
 import React, { useState } from 'react';
 import RestaurantService from '../utils/RestaurantService';
 
