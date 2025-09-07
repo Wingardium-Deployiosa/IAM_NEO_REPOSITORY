@@ -20,8 +20,7 @@ public class Restaurant {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // --- THIS IS THE NEW, CRITICAL FIELD ---
-    private Long ownerId; // This links the restaurant to a user with the 'OWNER' role
+    private Long ownerId; 
 
     private String name;
     private String address;

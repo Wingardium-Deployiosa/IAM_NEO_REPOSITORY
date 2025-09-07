@@ -47,7 +47,6 @@ public class RestaurantService {
     public void deleteRestaurant(Long id) {
         Restaurant restaurant = getRestaurantById(id);
         
-        // Check if restaurant has any reservations
         List<Reservation> existingReservations = reservationRepository.findByRestaurant_Id(id);
         if (!existingReservations.isEmpty()) {
             throw new RuntimeException("Cannot delete restaurant while reservations exist for this restaurant");

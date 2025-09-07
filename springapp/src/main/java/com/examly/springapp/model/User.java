@@ -17,9 +17,8 @@ public class User {
     private String name;
     private String email;
     private String password;
-    private String role; // This will store 'CUSTOMER', 'OWNER', or 'ADMIN'
+    private String role; 
 
-    // --- Getters and Setters ---
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getName() { return name; }

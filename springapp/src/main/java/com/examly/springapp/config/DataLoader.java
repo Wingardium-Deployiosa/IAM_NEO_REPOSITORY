@@ -24,7 +24,6 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        // Only add sample data if no reservations exist
         if (reservationRepository.count() == 0) {
             loadSampleReservations();
         }
@@ -36,13 +35,12 @@ public class DataLoader implements CommandLineRunner {
         if (!restaurants.isEmpty()) {
             Restaurant firstRestaurant = restaurants.get(0);
             
-            // Create sample reservations
             Reservation reservation1 = new Reservation();
             reservation1.setCustomerName("John Doe");
             reservation1.setCustomerEmail("john.doe@example.com");
             reservation1.setCustomerPhone("123-456-7890");
             reservation1.setReservationDate(LocalDate.now().plusDays(1));
-            reservation1.setReservationTime(LocalTime.of(19, 0)); // 7:00 PM
+            reservation1.setReservationTime(LocalTime.of(19, 0)); 
             reservation1.setPartySize(4);
             reservation1.setSpecialRequests("Window seat preferred");
             reservation1.setStatus(ReservationStatus.PENDING);
@@ -53,7 +51,7 @@ public class DataLoader implements CommandLineRunner {
             reservation2.setCustomerEmail("jane.smith@example.com");
             reservation2.setCustomerPhone("098-765-4321");
             reservation2.setReservationDate(LocalDate.now().plusDays(2));
-            reservation2.setReservationTime(LocalTime.of(18, 30)); // 6:30 PM
+            reservation2.setReservationTime(LocalTime.of(18, 30)); 
             reservation2.setPartySize(2);
             reservation2.setSpecialRequests("Anniversary dinner");
             reservation2.setStatus(ReservationStatus.CONFIRMED);
@@ -64,7 +62,7 @@ public class DataLoader implements CommandLineRunner {
             reservation3.setCustomerEmail("bob.johnson@example.com");
             reservation3.setCustomerPhone("555-123-4567");
             reservation3.setReservationDate(LocalDate.now().plusDays(3));
-            reservation3.setReservationTime(LocalTime.of(20, 0)); // 8:00 PM
+            reservation3.setReservationTime(LocalTime.of(20, 0)); 
             reservation3.setPartySize(6);
             reservation3.setSpecialRequests("Birthday celebration");
             reservation3.setStatus(ReservationStatus.PENDING);

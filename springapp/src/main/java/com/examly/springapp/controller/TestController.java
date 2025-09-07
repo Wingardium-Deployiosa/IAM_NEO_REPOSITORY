@@ -42,10 +42,8 @@ public class TestController {
             
             Restaurant firstRestaurant = restaurants.get(0);
             
-            // Clear existing reservations first
             reservationRepository.deleteAll();
             
-            // Create sample reservations
             Reservation reservation1 = new Reservation();
             reservation1.setCustomerName("John Doe");
             reservation1.setCustomerEmail("john.doe@example.com");

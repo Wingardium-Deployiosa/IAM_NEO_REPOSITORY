@@ -24,12 +24,10 @@ public class ReservationService {
         Restaurant restaurant = restaurantRepository.findById(restaurantId)
                 .orElseThrow(() -> new ResourceNotFoundException("Restaurant not found with id: " + restaurantId));
 
-        // Business Logic: Check if reservation time is within opening hours
         if (reservation.getReservationTime().isBefore(restaurant.getOpeningTime()) || reservation.getReservationTime().isAfter(restaurant.getClosingTime())) {
             throw new ValidationException("Reservation time must be within restaurant opening hours.");
         }
 
-        // Business Logic: Check for overbooking
         List<Reservation> existingReservations = reservationRepository.findByRestaurant_IdAndReservationDate(restaurantId, reservation.getReservationDate());
         if (existingReservations.size() >= restaurant.getTotalTables()) {
             throw new ValidationException("No available tables for the selected date.");

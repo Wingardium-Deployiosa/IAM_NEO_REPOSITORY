@@ -43,7 +43,6 @@ public class RestaurantReservationSystemApplication implements CommandLineRunner
 			userRepository.save(customer);
 		}
 		
-		// Create sample restaurant if none exist
 		if (restaurantRepository.count() == 0) {
 			com.examly.springapp.model.Restaurant restaurant = new com.examly.springapp.model.Restaurant();
 			restaurant.setName("Sample Restaurant");

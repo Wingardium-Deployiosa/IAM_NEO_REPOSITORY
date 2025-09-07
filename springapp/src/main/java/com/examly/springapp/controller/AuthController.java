@@ -19,7 +19,6 @@ public class AuthController {
         String email = credentials.get("email");
         String password = credentials.get("password");
         
-        // Check predefined users
         if ("customer@customer.com".equals(email) && "customer".equals(password)) {
             return ResponseEntity.ok(Map.of("role", "CUSTOMER", "email", email));
         } else if ("admin@admin.com".equals(email) && "admin".equals(password)) {

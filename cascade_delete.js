@@ -15,7 +15,6 @@ function makeRequest(options, data = null) {
 
 async function deleteMario() {
   try {
-    // Get all reservations
     const reservationsRes = await makeRequest({
       hostname: 'ide-dfdaccffbaeccdbcacadadfbbcbbebfbde.premiumproject.examly.io',
       path: '/proxy/8080/api/reservations',
@@ -27,7 +26,6 @@ async function deleteMario() {
     
     console.log(`Found ${marioReservations.length} reservations for Mario's restaurant`);
     
-    // Delete all reservations for Mario's restaurant
     for (const reservation of marioReservations) {
       const deleteRes = await makeRequest({
         hostname: 'ide-dfdaccffbaeccdbcacadadfbbcbbebfbde.premiumproject.examly.io',
@@ -37,10 +35,8 @@ async function deleteMario() {
       console.log(`Deleted reservation ${reservation.id}: ${deleteRes.status}`);
     }
     
-    // Wait a moment for database consistency
     await new Promise(resolve => setTimeout(resolve, 2000));
     
-    // Now delete the restaurant
     const restaurantDeleteRes = await makeRequest({
       hostname: 'ide-dfdaccffbaeccdbcacadadfbbcbbebfbde.premiumproject.examly.io',
       path: '/proxy/8080/api/restaurants/15',

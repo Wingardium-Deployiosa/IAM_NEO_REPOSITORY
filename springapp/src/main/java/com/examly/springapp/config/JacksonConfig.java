@@ -19,7 +19,6 @@ public class JacksonConfig {
         ObjectMapper mapper = new ObjectMapper();
         JavaTimeModule javaTimeModule = new JavaTimeModule();
         
-        // Custom deserializer for LocalTime to handle HH:mm format
         javaTimeModule.addDeserializer(LocalTime.class, 
             new LocalTimeDeserializer(DateTimeFormatter.ofPattern("HH:mm")));
         

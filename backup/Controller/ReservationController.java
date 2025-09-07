@@ -16,7 +16,6 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
-// @CrossOrigin(origins = "*")
 public class ReservationController {
 
 @Autowired
@@ -33,12 +32,10 @@ return new ResponseEntity<>("Restaurant not found with id: " + restaurantId, Htt
 }
 Restaurant restaurant = optionalRestaurant.get();
 
-// Business Logic: Check if reservation time is within opening hours
 if (reservation.getReservationTime().isBefore(restaurant.getOpeningTime()) || reservation.getReservationTime().isAfter(restaurant.getClosingTime())) {
 return new ResponseEntity<>("Reservation time must be within restaurant opening hours.", HttpStatus.BAD_REQUEST);
 }
 
-// Business Logic: Check for overbooking
 List<Reservation> existingReservations = reservationRepository.findByRestaurant_IdAndReservationDate(restaurantId, reservation.getReservationDate());
 if (existingReservations.size() >= restaurant.getTotalTables()) {
 return new ResponseEntity<>("No available tables for the selected date.", HttpStatus.BAD_REQUEST);

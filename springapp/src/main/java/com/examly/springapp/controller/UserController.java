@@ -1,7 +1,7 @@
 package com.examly.springapp.controller;
 
 import com.examly.springapp.model.User;
-import com.examly.springapp.repository.UserRepository; // You would need to create this file
+import com.examly.springapp.repository.UserRepository; 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +15,7 @@ import java.util.Optional;
 public class UserController {
 
     @Autowired
-    private UserRepository userRepository; // You would also need to create UserRepository.java
+    private UserRepository userRepository; 
 
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody Map<String, String> credentials) {
