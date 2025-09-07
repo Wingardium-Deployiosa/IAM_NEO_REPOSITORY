@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import RestaurantService from '../utils/RestaurantService';
 import ReservationService from '../utils/ReservationService';
 import { useAuth } from '../AuthContext';
+import './OwnerDashboard.css';
 
 const OwnerDashboard = () => {
   const { user } = useAuth();
@@ -10,45 +11,56 @@ const OwnerDashboard = () => {
   const [availableSeats, setAvailableSeats] = useState({});
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const loadData = async () => {
     if (user && user.email) {
-      RestaurantService.getByOwner(user.email)
-        .then(response => {
-          const ownerRestaurants = response.data || [];
-          setRestaurants(ownerRestaurants);
-          
-          // Fetch available seats for each restaurant
-          const seatsPromises = ownerRestaurants.map(restaurant => 
-            RestaurantService.getAvailableSeats(restaurant.id)
-              .then(seatsResponse => ({ id: restaurant.id, seats: seatsResponse.data }))
-              .catch(() => ({ id: restaurant.id, seats: { availableSeats: restaurant.totalTables * 4, availableTables: restaurant.totalTables } }))
-          );
-          
-          return Promise.all([ReservationService.getAll(), Promise.all(seatsPromises)]);
-        })
-        .then(([reservationResponse, seatsResults]) => {
-          const allReservations = reservationResponse.data || [];
-          const ownerReservations = allReservations.filter(reservation => 
-            restaurants.some(restaurant => restaurant.id === reservation.restaurant?.id)
-          );
-          setReservations(ownerReservations);
-          
-          // Set available seats data
-          const seatsData = {};
-          seatsResults.forEach(result => {
-            seatsData[result.id] = result.seats;
-          });
-          setAvailableSeats(seatsData);
-          
-          setLoading(false);
-        })
-        .catch((error) => {
-          alert('Failed to load your restaurants and reservations.');
-          setRestaurants([]);
-          setReservations([]);
-          setLoading(false);
-        });
+      try {
+        const response = await RestaurantService.getByOwner(user.email);
+        const ownerRestaurants = response.data || [];
+        setRestaurants(ownerRestaurants);
+        
+        // Fetch available seats for each restaurant
+        const seatsData = {};
+        for (const restaurant of ownerRestaurants) {
+          try {
+            const seatsResponse = await RestaurantService.getAvailableSeats(restaurant.id);
+            seatsData[restaurant.id] = seatsResponse.data || seatsResponse;
+          } catch (err) {
+            seatsData[restaurant.id] = { availableSeats: restaurant.totalTables * 4, availableTables: restaurant.totalTables };
+          }
+        }
+        setAvailableSeats(seatsData);
+        
+        // Fetch reservations
+        const reservationResponse = await ReservationService.getAll();
+        const allReservations = reservationResponse.data || [];
+        const ownerReservations = allReservations.filter(reservation => 
+          ownerRestaurants.some(restaurant => restaurant.id === reservation.restaurant?.id)
+        );
+        setReservations(ownerReservations);
+        
+        setLoading(false);
+      } catch (error) {
+        console.error('Error loading data:', error);
+        setRestaurants([]);
+        setReservations([]);
+        setLoading(false);
+      }
     }
+  };
+
+  useEffect(() => {
+    loadData();
+    
+    // Listen for reservation updates
+    const handleReservationUpdate = () => {
+      loadData();
+    };
+    
+    window.addEventListener('reservationUpdated', handleReservationUpdate);
+    
+    return () => {
+      window.removeEventListener('reservationUpdated', handleReservationUpdate);
+    };
   }, [user]);
 
   if (loading) return <div>Loading your restaurants...</div>;
@@ -88,21 +100,46 @@ const OwnerDashboard = () => {
                   <p>Cuisine: {restaurant.cuisine}</p>
                   <p>Hours: {restaurant.openingTime} - {restaurant.closingTime}</p>
                   <p>Tables: {restaurant.totalTables}</p>
-                  <p>Available Today: {availableSeats[restaurant.id]?.availableSeats || 'Loading...'} seats ({availableSeats[restaurant.id]?.availableTables || 'Loading...'} tables)</p>
+                  <p>Available Today: {availableSeats[restaurant.id]?.availableSeats ?? (restaurant.totalTables * 4)} seats ({availableSeats[restaurant.id]?.availableTables ?? restaurant.totalTables} tables)</p>
                 </div>
               </div>
             ))}
           </div>
           <div className="reservations-section">
-            <h3>Recent Reservations</h3>
+            <h3 className="section-title">Recent Reservations</h3>
             {reservations.length === 0 ? (
-              <p>No reservations found for your restaurants.</p>
+              <div className="empty-state">
+                <div className="empty-icon">📅</div>
+                <p>No reservations found for your restaurants.</p>
+              </div>
             ) : (
-              <div className="reservations-list">
-                {reservations.map(reservation => (
-                  <div key={reservation.id} className="reservation-item">
-                    <p><strong>{reservation.customerName}</strong> - {reservation.reservationDate} at {reservation.reservationTime}</p>
-                    <p>Party size: {reservation.partySize} | Status: {reservation.status}</p>
+              <div className="reservations-grid">
+                {reservations.slice(0, 6).map(reservation => (
+                  <div key={reservation.id} className="reservation-card">
+                    <div className="reservation-header">
+                      <h4>{reservation.customerName}</h4>
+                      <span className={`status-badge status-${reservation.status.toLowerCase()}`}>
+                        {reservation.status}
+                      </span>
+                    </div>
+                    <div className="reservation-details">
+                      <div className="detail-row">
+                        <span className="icon">📅</span>
+                        <span>{reservation.reservationDate}</span>
+                      </div>
+                      <div className="detail-row">
+                        <span className="icon">🕐</span>
+                        <span>{reservation.reservationTime}</span>
+                      </div>
+                      <div className="detail-row">
+                        <span className="icon">👥</span>
+                        <span>{reservation.partySize} people</span>
+                      </div>
+                      <div className="detail-row">
+                        <span className="icon">📧</span>
+                        <span>{reservation.customerEmail}</span>
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>

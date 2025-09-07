@@ -9,6 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -23,6 +27,9 @@ public class TestController {
 
     @Autowired
     private RestaurantRepository restaurantRepository;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @PostMapping("/add-sample-reservations")
     public ResponseEntity<String> addSampleReservations() {
@@ -94,5 +101,27 @@ public class TestController {
     public ResponseEntity<List<Reservation>> getAllReservationsDebug() {
         List<Reservation> reservations = reservationRepository.findAll();
         return ResponseEntity.ok(reservations);
+    }
+
+    @PostMapping("/reset-restaurant-id")
+    @Transactional
+    public ResponseEntity<String> resetRestaurantId() {
+        try {
+            entityManager.createNativeQuery("ALTER TABLE restaurant AUTO_INCREMENT = 1").executeUpdate();
+            return ResponseEntity.ok("Restaurant ID reset to start from 1");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error resetting restaurant ID: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/reset-reservation-id")
+    @Transactional
+    public ResponseEntity<String> resetReservationId() {
+        try {
+            entityManager.createNativeQuery("ALTER TABLE reservation AUTO_INCREMENT = 1").executeUpdate();
+            return ResponseEntity.ok("Reservation ID reset to start from 1");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error resetting reservation ID: " + e.getMessage());
+        }
     }
 }

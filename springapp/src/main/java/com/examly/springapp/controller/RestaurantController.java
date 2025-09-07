@@ -76,6 +76,8 @@ public class RestaurantController {
         try {
             restaurantService.deleteRestaurant(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             return new ResponseEntity<>("Error deleting restaurant", HttpStatus.INTERNAL_SERVER_ERROR);
         }

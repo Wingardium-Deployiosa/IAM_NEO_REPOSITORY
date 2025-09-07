@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import ReservationService from '../utils/ReservationService';
 import { useAuth } from '../AuthContext';
+import './AdminHome.css';
 
 const AdminHome = () => {
   const [recentReservations, setRecentReservations] = useState([]);
@@ -23,31 +24,80 @@ const AdminHome = () => {
   }, []);
 
   return (
-    <div className="admin-home-container">
-      <h2>Hello, {user?.name || 'Admin'}!</h2>
-      <p>Welcome to your control panel. Here are the most recent bookings.</p>
+    <div className="admin-home">
+      <div className="admin-header">
+        <h1>Welcome to Admin Dashboard</h1>
+        <p>Hello, {user?.name || 'Admin'}! Manage your restaurant reservations efficiently.</p>
+      </div>
+
+      <div className="dashboard-stats">
+        <div className="stat-card">
+          <div className="stat-icon">📊</div>
+          <div className="stat-info">
+            <h3>Total Reservations</h3>
+            <p className="stat-number">{recentReservations.length}</p>
+          </div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon">⏰</div>
+          <div className="stat-info">
+            <h3>Pending Approvals</h3>
+            <p className="stat-number">{recentReservations.filter(r => r.status === 'PENDING').length}</p>
+          </div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon">✅</div>
+          <div className="stat-info">
+            <h3>Confirmed Today</h3>
+            <p className="stat-number">{recentReservations.filter(r => r.status === 'CONFIRMED').length}</p>
+          </div>
+        </div>
+      </div>
 
       <div className="recent-bookings">
-        <h3>Recent Bookings</h3>
+        <div className="section-header">
+          <h2>Recent Reservations</h2>
+          <Link to="/manage-reservations" className="view-all-btn">View All</Link>
+        </div>
         {recentReservations.length > 0 ? (
-          recentReservations.map((res) => (
-            <div key={res.id} className="booking-summary-card">
-              <p>
-                <strong>Customer:</strong> {res.customerName}
-              </p>
-              <p>
-                <strong>Date:</strong> {res.reservationDate} at {res.reservationTime}
-              </p>
-              <p>
-                <strong>Status:</strong> {res.status}
-              </p>
-              <Link to={`/reservations/${res.id}`} className="details-button">
-                See Details
-              </Link>
-            </div>
-          ))
+          <div className="bookings-grid">
+            {recentReservations.map((res) => (
+              <div key={res.id} className="booking-card">
+                <div className="booking-header">
+                  <h3>{res.customerName}</h3>
+                  <span className={`status-badge status-${res.status.toLowerCase()}`}>
+                    {res.status}
+                  </span>
+                </div>
+                <div className="booking-details">
+                  <div className="detail-item">
+                    <span className="icon">📅</span>
+                    <span>{res.reservationDate}</span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="icon">🕐</span>
+                    <span>{res.reservationTime}</span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="icon">👥</span>
+                    <span>{res.partySize} people</span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="icon">📧</span>
+                    <span>{res.customerEmail}</span>
+                  </div>
+                </div>
+                <Link to={`/reservations/${res.id}`} className="details-button">
+                  View Details
+                </Link>
+              </div>
+            ))}
+          </div>
         ) : (
-          <p>No recent bookings found.</p>
+          <div className="empty-state">
+            <div className="empty-icon">📋</div>
+            <p>No recent reservations found.</p>
+          </div>
         )}
       </div>
     </div>

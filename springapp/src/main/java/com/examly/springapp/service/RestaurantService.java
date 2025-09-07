@@ -46,6 +46,13 @@ public class RestaurantService {
 
     public void deleteRestaurant(Long id) {
         Restaurant restaurant = getRestaurantById(id);
+        
+        // Check if restaurant has any reservations
+        List<Reservation> existingReservations = reservationRepository.findByRestaurant_Id(id);
+        if (!existingReservations.isEmpty()) {
+            throw new RuntimeException("Cannot delete restaurant while reservations exist for this restaurant");
+        }
+        
         restaurantRepository.delete(restaurant);
     }
 
@@ -67,7 +74,7 @@ public class RestaurantService {
                 restaurantId, LocalDate.now());
             
             int bookedSeats = todayReservations.stream()
-                .filter(r -> r.getStatus() == ReservationStatus.CONFIRMED || r.getStatus() == ReservationStatus.PENDING)
+                .filter(r -> r.getStatus() == ReservationStatus.CONFIRMED)
                 .mapToInt(Reservation::getPartySize)
                 .sum();
             
@@ -98,7 +105,7 @@ public class RestaurantService {
                 restaurantId, date);
             
             int bookedSeats = dateReservations.stream()
-                .filter(r -> r.getStatus() == ReservationStatus.CONFIRMED || r.getStatus() == ReservationStatus.PENDING)
+                .filter(r -> r.getStatus() == ReservationStatus.CONFIRMED)
                 .mapToInt(Reservation::getPartySize)
                 .sum();
             

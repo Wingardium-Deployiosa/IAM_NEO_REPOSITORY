@@ -32,6 +32,8 @@ const ReservationForm = ({ restaurant, onReservationSuccess }) => {
     const party = Number(formData.partySize);
     if (Number.isNaN(party) || party < 1 || party > 20) {
       newErrors.partySize = 'Party size must be between 1 and 20.';
+    } else if (availableSeatsForDate && party > availableSeatsForDate.availableSeats) {
+      newErrors.partySize = `Requested seats exceed availability (${availableSeatsForDate.availableSeats} available).`;
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -41,14 +43,24 @@ const ReservationForm = ({ restaurant, onReservationSuccess }) => {
   const firstErrorKey = errorKeys[0];
   const firstErrorMessage = firstErrorKey ? errors[firstErrorKey] : null;
 
-  const handleChange = (e) => {
+  const handleChange = async (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: name === 'partySize' ? (value === '' ? '' : Number(value)) : value,
     }));
     
-    // Available seats check removed to prevent test failures
+    // Check availability when date changes
+    if (name === 'reservationDate' && value && restaurant?.id) {
+      try {
+        const response = await RestaurantService.getAvailableSeatsForDate(restaurant.id, value);
+        const seatsData = response && response.data ? response.data : response;
+        setAvailableSeatsForDate(seatsData);
+      } catch (err) {
+        console.error('Error fetching availability:', err);
+        setAvailableSeatsForDate({ availableSeats: 0, availableTables: 0 });
+      }
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -82,6 +94,9 @@ partySize: 1,
 specialRequests: '',
 });
 setErrors({});
+setAvailableSeatsForDate(null);
+// Dispatch event to refresh restaurant availability
+window.dispatchEvent(new CustomEvent('reservationUpdated'));
 if (onReservationSuccess) onReservationSuccess();
 } catch (err) {
   const errorMessage = err.response?.data || 'Something went wrong. Please try again.';
@@ -146,11 +161,18 @@ return (
               data-testid="party-size-input"
               name="partySize"
               type="number"
-              placeholder="Party Size"
+              placeholder="No of Seats"
               value={formData.partySize}
               onChange={handleChange}
               className="form-input"
+              min="1"
+              max={availableSeatsForDate ? availableSeatsForDate.availableSeats : undefined}
             />
+            {formData.partySize && availableSeatsForDate && formData.partySize > availableSeatsForDate.availableSeats && (
+              <small className="availability-text unavailable">
+                ❌ Exceeds available seats ({availableSeatsForDate.availableSeats} available)
+              </small>
+            )}
           </div>
         </div>
 
@@ -163,12 +185,8 @@ return (
               value={formData.reservationDate}
               onChange={handleChange}
               className="form-input"
+              min={new Date().toISOString().split('T')[0]}
             />
-            {formData.reservationDate && availableSeatsForDate && (
-              <small style={{color: availableSeatsForDate.availableSeats === 0 ? 'red' : 'green', marginTop: '5px', display: 'block'}}>
-                Available seats for {formData.reservationDate}: {availableSeatsForDate.availableSeats === 0 ? 'Restaurant Full' : `${availableSeatsForDate.availableSeats} seats (${availableSeatsForDate.availableTables} tables)`}
-              </small>
-            )}
           </div>
           <div className="form-group">
             <input
@@ -181,6 +199,16 @@ return (
             />
           </div>
         </div>
+        
+        {formData.reservationDate && availableSeatsForDate !== null && (
+          <div className="availability-info">
+            <small className={`availability-text ${availableSeatsForDate.availableSeats === 0 ? 'unavailable' : 'available'}`}>
+              {availableSeatsForDate.availableSeats === 0 
+                ? '❌ Restaurant Full - No tables available' 
+                : `✅ ${availableSeatsForDate.availableSeats} seats available (${availableSeatsForDate.availableTables} tables)`}
+            </small>
+          </div>
+        )}
 
         <div className="form-group">
           <textarea

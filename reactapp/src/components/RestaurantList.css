@@ -179,21 +179,144 @@
   margin: 0;
 }
 
+@media (max-width: 1024px) {
+  .hero-section {
+    padding: 60px 0 50px;
+  }
+  
+  .hero-section h1 {
+    font-size: 40px;
+  }
+  
+  .restaurant-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+  
+  .restaurants-section {
+    padding: 50px 0;
+  }
+}
+
 @media (max-width: 768px) {
+  .hero-section {
+    padding: 50px 0 40px;
+  }
+  
   .hero-section h1 {
     font-size: 32px;
+    margin-bottom: 12px;
   }
   
   .hero-section p {
     font-size: 16px;
+    margin-bottom: 32px;
+  }
+  
+  .restaurants-section {
+    padding: 40px 0;
   }
   
   .restaurant-grid {
     grid-template-columns: 1fr;
     gap: 16px;
+    margin-top: 32px;
   }
   
   .section-title {
     font-size: 24px;
+    margin-bottom: 32px;
+  }
+  
+  .restaurant-card {
+    margin: 0 16px;
+  }
+  
+  .restaurant-image {
+    height: 160px;
+    font-size: 20px;
+  }
+  
+  .restaurant-info {
+    padding: 16px;
+  }
+  
+  .restaurant-name {
+    font-size: 18px;
+  }
+  
+  .restaurant-meta {
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-section {
+    padding: 40px 0 32px;
+  }
+  
+  .hero-section h1 {
+    font-size: 28px;
+  }
+  
+  .hero-section p {
+    font-size: 15px;
+  }
+  
+  .restaurants-section {
+    padding: 32px 0;
+  }
+  
+  .section-title {
+    font-size: 20px;
+    margin-bottom: 24px;
+  }
+  
+  .restaurant-card {
+    margin: 0 12px;
+  }
+  
+  .restaurant-image {
+    height: 140px;
+    font-size: 18px;
+  }
+  
+  .restaurant-info {
+    padding: 14px;
+  }
+  
+  .restaurant-name {
+    font-size: 16px;
+  }
+  
+  .restaurant-address {
+    font-size: 13px;
+  }
+  
+  .restaurant-meta {
+    gap: 8px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .rating, .delivery-time, .cost {
+    font-size: 11px;
+  }
+  
+  .btn-delete {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+  
+  .no-results {
+    padding: 60px 16px;
+  }
+  
+  .no-results h3 {
+    font-size: 20px;
+  }
+  
+  .no-results p {
+    font-size: 14px;
   }
 }

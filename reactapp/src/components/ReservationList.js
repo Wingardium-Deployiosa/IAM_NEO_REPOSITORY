@@ -58,6 +58,8 @@ const ReservationList = () => {
       await ReservationService.cancel(id);
       alert('Reservation cancelled successfully!');
       setReservations((prev) => prev.filter((r) => r.id !== id));
+      // Trigger a page refresh to update available seats in restaurant cards
+      window.dispatchEvent(new CustomEvent('reservationUpdated'));
     } catch (err) {
       alert('Failed to cancel reservation. Please try again.');
       console.error('Error cancelling reservation:', err);
