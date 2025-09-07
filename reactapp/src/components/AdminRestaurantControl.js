@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import AddRestaurantForm from './AddRestaurantForm';
-import RestaurantList from './RestaurantList';
+import AdminRestaurantList from './AdminRestaurantList';
 
 const AdminRestaurantControl = () => {
   const [refreshKey, setRefreshKey] = useState(0);
@@ -13,7 +13,7 @@ const AdminRestaurantControl = () => {
       <hr />
       <AddRestaurantForm onRestaurantAdded={handleRestaurantAdded} />
       <hr />
-      <RestaurantList key={refreshKey} hideAddForm={true} />
+      <AdminRestaurantList key={refreshKey} hideAddForm={true} />
     </div>
   );
 };
