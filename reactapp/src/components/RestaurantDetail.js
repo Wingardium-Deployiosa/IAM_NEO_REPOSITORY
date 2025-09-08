@@ -1,4 +1,4 @@
-// src/components/RestaurantDetail.js
+
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import RestaurantService from '../utils/RestaurantService';
@@ -21,7 +21,7 @@ const RestaurantDetail = () => {
         const data = resp && resp.data ? resp.data : resp;
         setRestaurant(data || null);
         
-        // Fetch available seats
+      
         try {
           if (RestaurantService.getAvailableSeats) {
             const seatsPromise = RestaurantService.getAvailableSeats(id);

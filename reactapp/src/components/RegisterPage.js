@@ -1,30 +1,30 @@
-
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../AuthContext';
-import AuthService from '../utils/AuthService';
+import axios from 'axios';
 import './LoginPage.css';
 
-
-const LoginPage = () => {
+const RegisterPage = () => {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const auth = useAuth();
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
     
     try {
-      const response = await AuthService.login({ email, password });
-      const { role, email: userEmail } = response.data;
-      auth.login({ email: userEmail, role });
-      alert('Login successful!');
-      navigate('/');
+      await axios.post('https://ide-dfdaccffbaeccdbcacadadfbbcbbebfbde.premiumproject.examly.io/proxy/8080/api/users/register', {
+        name,
+        email,
+        password
+      });
+      alert('Registration successful! Please login.');
+      navigate('/login');
     } catch (error) {
-      alert('Login failed: Invalid credentials');
-      setError('Invalid credentials');
+      const errorMessage = error.response?.data || 'Registration failed';
+      alert(`Registration failed: ${errorMessage}`);
+      setError(errorMessage);
     }
   };
 
@@ -36,11 +36,25 @@ const LoginPage = () => {
             <div className="logo">
               <i className="fas fa-utensils"></i>
             </div>
-            <h1>Welcome Back</h1>
-            <p>Sign in to continue to Restaurant Reservations</p>
+            <h1>Create Account</h1>
+            <p>Join Restaurant Reservations today</p>
           </div>
 
-          <form onSubmit={handleLogin} className="login-form">
+          <form onSubmit={handleRegister} className="login-form">
+            <div className="form-group">
+              <div className="input-wrapper">
+                <i className="fas fa-user input-icon"></i>
+                <input
+                  type="text"
+                  placeholder="Enter your name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  className="form-input"
+                />
+              </div>
+            </div>
+
             <div className="form-group">
               <div className="input-wrapper">
                 <i className="fas fa-envelope input-icon"></i>
@@ -70,12 +84,12 @@ const LoginPage = () => {
             </div>
 
             <button type="submit" className="login-btn">
-              Sign In
+              Register
             </button>
           </form>
 
           <div className="auth-links">
-            <p>New customer? <Link to="/register">Register</Link></p>
+            <p>Already a customer? <Link to="/login">Login</Link></p>
           </div>
 
           {error && (
@@ -89,4 +103,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default RegisterPage;

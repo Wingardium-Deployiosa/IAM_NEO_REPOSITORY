@@ -17,7 +17,6 @@ const RestaurantList = () => {
   useEffect(() => {
     loadRestaurants();
     
-    // Listen for reservation updates to refresh available seats
     const handleReservationUpdate = () => {
       loadRestaurants();
     };
@@ -38,7 +37,6 @@ const RestaurantList = () => {
       setRestaurants(restaurantList);
       setAllRestaurants(restaurantList);
       
-      // Fetch available seats for each restaurant
       const seatsData = {};
       for (const restaurant of restaurantList) {
         try {
@@ -90,6 +88,17 @@ const RestaurantList = () => {
       </div>
       
       <div style={{background: 'transparent', maxWidth: '1200px', margin: '0 auto', padding: '0 20px'}}>
+        {user && user.role === 'CUSTOMER' && (
+          <div style={{background: 'white', borderRadius: '12px', padding: '20px', margin: '20px 0', boxShadow: '0 2px 8px rgba(40, 44, 63, 0.08)', display: 'flex', alignItems: 'center', gap: '16px'}}>
+            <div style={{width: '50px', height: '50px', borderRadius: '50%', background: 'linear-gradient(135deg, #fc8019 0%, #ff6900 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '20px', fontWeight: '700'}}>
+              {user.email ? user.email.charAt(0).toUpperCase() : 'U'}
+            </div>
+            <div>
+              <h3 style={{margin: '0 0 4px 0', fontSize: '18px', fontWeight: '600', color: '#282c3f'}}>Welcome back!</h3>
+              <p style={{margin: '0', fontSize: '14px', color: '#7e808c'}}>{user.email}</p>
+            </div>
+          </div>
+        )}
         <div style={{padding: '60px 0', background: 'transparent'}}>
           <h2 style={{fontSize: '32px', fontWeight: '700', color: '#282c3f', marginBottom: '40px', textAlign: 'center', background: 'transparent'}}>All Restaurants</h2>
           

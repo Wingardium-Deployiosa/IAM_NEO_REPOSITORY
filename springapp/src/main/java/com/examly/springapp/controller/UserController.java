@@ -34,4 +34,20 @@ public class UserController {
         
         return new ResponseEntity<>("Invalid email or password", HttpStatus.UNAUTHORIZED);
     }
+
+    @PostMapping("/register")
+    public ResponseEntity<?> registerUser(@RequestBody User user) {
+        try {
+            Optional<User> existingUser = userRepository.findByEmail(user.getEmail());
+            if (existingUser.isPresent()) {
+                return new ResponseEntity<>("Email already exists", HttpStatus.BAD_REQUEST);
+            }
+            
+            user.setRole("CUSTOMER");
+            User savedUser = userRepository.save(user);
+            return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Registration failed", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

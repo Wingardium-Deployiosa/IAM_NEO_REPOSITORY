@@ -18,7 +18,7 @@ const OwnerDashboard = () => {
         const ownerRestaurants = response.data || [];
         setRestaurants(ownerRestaurants);
         
-        // Fetch available seats for each restaurant
+      
         const seatsData = {};
         for (const restaurant of ownerRestaurants) {
           try {
@@ -30,7 +30,7 @@ const OwnerDashboard = () => {
         }
         setAvailableSeats(seatsData);
         
-        // Fetch reservations
+      
         const reservationResponse = await ReservationService.getAll();
         const allReservations = reservationResponse.data || [];
         const ownerReservations = allReservations.filter(reservation => 
@@ -51,7 +51,7 @@ const OwnerDashboard = () => {
   useEffect(() => {
     loadData();
     
-    // Listen for reservation updates
+    
     const handleReservationUpdate = () => {
       loadData();
     };

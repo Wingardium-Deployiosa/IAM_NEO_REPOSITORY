@@ -17,7 +17,7 @@ const RestaurantList = () => {
   useEffect(() => {
     loadRestaurants();
     
-    // Listen for reservation updates to refresh available seats
+  
     const handleReservationUpdate = () => {
       loadRestaurants();
     };
@@ -38,7 +38,7 @@ const RestaurantList = () => {
       setRestaurants(restaurantList);
       setAllRestaurants(restaurantList);
       
-      // Fetch available seats for each restaurant
+   
       const seatsData = {};
       for (const restaurant of restaurantList) {
         try {

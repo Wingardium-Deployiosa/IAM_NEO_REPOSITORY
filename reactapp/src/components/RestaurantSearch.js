@@ -1,4 +1,4 @@
-// src/components/RestaurantSearch.js
+
 import React, { useState, useRef } from 'react';
 import RestaurantService from '../utils/RestaurantService';
 import './RestaurantSearch.css';
@@ -12,8 +12,7 @@ const RestaurantSearch = ({ onSearch, onResults, debounceMs = DEFAULT_DEBOUNCE_M
   const [loading, setLoading] = useState(false);
   const debounceRef = useRef(null);
 
-  // Called when input changes; if parent provided onSearch (RestaurantList integration),
-  // we call it (debounced) so RestaurantList can reorder its array live.
+  
   const handleChange = (e) => {
     const val = e.target.value;
     setCuisine(val);
@@ -26,8 +25,7 @@ const RestaurantSearch = ({ onSearch, onResults, debounceMs = DEFAULT_DEBOUNCE_M
     }, debounceMs);
   };
 
-  // Called on button click or Enter. If parent provided onSearch, prefer that.
-  // Otherwise call service directly (standalone mode used in some tests).
+  
   const handleSearch = async () => {
     const term = cuisine.trim();
     if (onSearch) {
@@ -54,7 +52,6 @@ const RestaurantSearch = ({ onSearch, onResults, debounceMs = DEFAULT_DEBOUNCE_M
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      // cancel pending debounce so button search runs immediately
       if (debounceRef.current) clearTimeout(debounceRef.current);
       handleSearch();
     }
@@ -86,7 +83,6 @@ const RestaurantSearch = ({ onSearch, onResults, debounceMs = DEFAULT_DEBOUNCE_M
         </div>
       </div>
 
-      {/* Standalone results display for tests (only when not integrated via onSearch) */}
       {!onSearch && (
         <div className="search-results">
           {loading && <div data-testid="loading" className="loading-state">Searching restaurants...</div>}

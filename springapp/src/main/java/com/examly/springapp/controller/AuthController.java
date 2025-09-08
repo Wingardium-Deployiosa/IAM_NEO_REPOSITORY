@@ -25,6 +25,9 @@ public class AuthController {
             return ResponseEntity.ok(Map.of("role", "ADMIN", "email", email));
         } else if (userService.validateOwnerCredentials(email, password)) {
             return ResponseEntity.ok(Map.of("role", "OWNER", "email", email));
+        } else if (userService.validateUserCredentials(email, password)) {
+            String role = userService.getUserRole(email);
+            return ResponseEntity.ok(Map.of("role", role, "email", email));
         }
         
         return ResponseEntity.status(401).body(Map.of("error", "Invalid credentials"));

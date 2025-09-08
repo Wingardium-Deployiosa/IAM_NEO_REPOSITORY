@@ -1,4 +1,4 @@
-// src/components/ReservationStatus.js
+
 import React from 'react';
 import ReservationService from '../utils/ReservationService';
 import './ReservationStatus.css';

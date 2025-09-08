@@ -22,9 +22,9 @@ const ReservationList = () => {
         const data = resp && resp.data ? resp.data : resp;
         let filteredReservations = Array.isArray(data) ? data : [];
         
-        // Filter reservations based on user role
+      
         if (user && user.role === 'OWNER') {
-          // For owners, show only reservations for their restaurants
+      
           const ownerRestaurantsResp = await RestaurantService.getByOwner(user.email);
           const ownerRestaurantsData = ownerRestaurantsResp && ownerRestaurantsResp.data ? ownerRestaurantsResp.data : ownerRestaurantsResp;
           const ownerRestaurants = Array.isArray(ownerRestaurantsData) ? ownerRestaurantsData : [];
@@ -58,7 +58,7 @@ const ReservationList = () => {
       await ReservationService.cancel(id);
       alert('Reservation cancelled successfully!');
       setReservations((prev) => prev.filter((r) => r.id !== id));
-      // Trigger a page refresh to update available seats in restaurant cards
+     
       window.dispatchEvent(new CustomEvent('reservationUpdated'));
     } catch (err) {
       alert('Failed to cancel reservation. Please try again.');
@@ -73,7 +73,6 @@ const ReservationList = () => {
       setReservations((prev) =>
         prev.map((r) => (r.id === id ? { ...r, status: 'CONFIRMED' } : r))
       );
-      // Trigger a page refresh to update available seats in restaurant cards
       window.dispatchEvent(new CustomEvent('reservationUpdated'));
     } catch (err) {
       alert('Failed to confirm reservation. Please try again.');

@@ -59,6 +59,7 @@ public class RestaurantReservationSystemTests {
                 .build();
     }
 
+    // Test Case 1: Create Restaurant Successfully
     @Test
     public void testCreateRestaurant() {
         when(restaurantRepository.save(any(Restaurant.class))).thenReturn(testRestaurant);
@@ -71,6 +72,7 @@ public class RestaurantReservationSystemTests {
         verify(restaurantRepository, times(1)).save(testRestaurant);
     }
 
+    // Test Case 2: Get All Restaurants
     @Test
     public void testGetAllRestaurants() {
         List<Restaurant> restaurants = Arrays.asList(testRestaurant);
@@ -83,6 +85,7 @@ public class RestaurantReservationSystemTests {
         verify(restaurantRepository, times(1)).findAll();
     }
 
+    // Test Case 3: Get Restaurant by ID
     @Test
     public void testGetRestaurantById() {
         when(restaurantRepository.findById(1L)).thenReturn(Optional.of(testRestaurant));
@@ -94,6 +97,7 @@ public class RestaurantReservationSystemTests {
         verify(restaurantRepository, times(1)).findById(1L);
     }
 
+    // Test Case 4: Get Restaurant by ID - Not Found
     @Test
     public void testGetRestaurantByIdNotFound() {
         when(restaurantRepository.findById(999L)).thenReturn(Optional.empty());
@@ -105,6 +109,7 @@ public class RestaurantReservationSystemTests {
         verify(restaurantRepository, times(1)).findById(999L);
     }
 
+    // Test Case 5: Search Restaurants by Cuisine
     @Test
     public void testSearchByCuisine() {
         List<Restaurant> italianRestaurants = Arrays.asList(testRestaurant);
@@ -117,6 +122,7 @@ public class RestaurantReservationSystemTests {
         verify(restaurantRepository, times(1)).findByCuisineIgnoreCase("Italian");
     }
 
+    // Test Case 6: Create Reservation Successfully
     @Test
     public void testCreateReservation() {
         when(restaurantRepository.findById(1L)).thenReturn(Optional.of(testRestaurant));
@@ -132,6 +138,7 @@ public class RestaurantReservationSystemTests {
         verify(reservationRepository, times(1)).save(any(Reservation.class));
     }
 
+    // Test Case 7: Create Reservation - Restaurant Not Found
     @Test
     public void testCreateReservationRestaurantNotFound() {
         when(restaurantRepository.findById(999L)).thenReturn(Optional.empty());
@@ -143,6 +150,7 @@ public class RestaurantReservationSystemTests {
         verify(restaurantRepository, times(1)).findById(999L);
     }
 
+    // Test Case 8: Get All Reservations
     @Test
     public void testGetAllReservations() {
         List<Reservation> reservations = Arrays.asList(testReservation);
@@ -155,6 +163,7 @@ public class RestaurantReservationSystemTests {
         verify(reservationRepository, times(1)).findAll();
     }
 
+    // Test Case 9: Update Reservation Status
     @Test
     public void testUpdateReservationStatus() {
         when(reservationRepository.findById(1L)).thenReturn(Optional.of(testReservation));
@@ -168,6 +177,7 @@ public class RestaurantReservationSystemTests {
         verify(reservationRepository, times(1)).save(any(Reservation.class));
     }
 
+    // Test Case 10: Cancel Reservation
     @Test
     public void testCancelReservation() {
         when(reservationRepository.findById(1L)).thenReturn(Optional.of(testReservation));

@@ -1,4 +1,4 @@
-// src/components/AdminHome.js
+
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import ReservationService from '../utils/ReservationService';
